@@ -15,13 +15,13 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://wedding-invitation.vercel.app"),
+  metadataBase: new URL("https://wedding-invitation-gamma-olive.vercel.app"),
   title: "강준석♡윤선영 모바일 청첩장",
   description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
   openGraph: {
     title: "강준석♡윤선영 모바일 청첩장",
     description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
-    url: "https://wedding-invitation.vercel.app",
+    url: "https://wedding-invitation-gamma-olive.vercel.app",
     siteName: "Wedding Invitation",
     images: [
       {
