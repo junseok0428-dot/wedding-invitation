@@ -546,11 +546,13 @@ const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
             return prev;
           }
 
-          return [newEntry, ...prev].slice(0, 50);
+          return [newEntry, ...prev].slice(0, 3);
         });
       }
     )
-    .subscribe();
+    .subscribe((status) => {
+  console.log("guestbook realtime status:", status);
+});
 
   return () => {
     supabase.removeChannel(channel);
