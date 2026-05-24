@@ -526,6 +526,7 @@ export default function MobileWeddingInvitation() {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
   null
 );
+const [showGalleryControls, setShowGalleryControls] = useState(true);
 
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
 const [guestName, setGuestName] = useState("");
@@ -1163,7 +1164,10 @@ const submitGuestbook = async () => {
                 key={src}
                 src={src}
                 index={index}
-                onClick={() => setSelectedImageIndex(index)}
+                onClick={() => {
+  setSelectedImageIndex(index);
+  setShowGalleryControls(true);
+}}
               />
             ))}
           </div>
@@ -1427,66 +1431,79 @@ const submitGuestbook = async () => {
           </div>
         </section>
 
-        {selectedImageIndex !== null && (
+{selectedImageIndex !== null && (
   <div
     className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 px-4"
-    onClick={() => setSelectedImageIndex(null)}
+    onClick={() => setShowGalleryControls((prev) => !prev)}
   >
-    <button
-      type="button"
-      className="absolute right-5 top-5 z-20 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur"
-      onClick={() => setSelectedImageIndex(null)}
-    >
-      닫기
-    </button>
+    {showGalleryControls && (
+      <button
+        type="button"
+        className="absolute right-5 top-5 z-20 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur"
+        onClick={(event) => {
+          event.stopPropagation();
+          setSelectedImageIndex(null);
+        }}
+      >
+        닫기
+      </button>
+    )}
 
-    <button
-      type="button"
-      className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
-      onClick={(event) => {
-        event.stopPropagation();
-        setSelectedImageIndex((prev) => {
-          if (prev === null) return prev;
-          return prev === 0 ? wedding.gallery.length - 1 : prev - 1;
-        });
-      }}
-    >
-      ‹
-    </button>
+    {showGalleryControls && (
+      <button
+        type="button"
+        className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+        onClick={(event) => {
+          event.stopPropagation();
+          setSelectedImageIndex((prev) => {
+            if (prev === null) return prev;
+            return prev === 0 ? wedding.gallery.length - 1 : prev - 1;
+          });
+        }}
+      >
+        ‹
+      </button>
+    )}
 
-    <button
-      type="button"
-      className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
-      onClick={(event) => {
-        event.stopPropagation();
-        setSelectedImageIndex((prev) => {
-          if (prev === null) return prev;
-          return prev === wedding.gallery.length - 1 ? 0 : prev + 1;
-        });
-      }}
-    >
-      ›
-    </button>
+    {showGalleryControls && (
+      <button
+        type="button"
+        className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+        onClick={(event) => {
+          event.stopPropagation();
+          setSelectedImageIndex((prev) => {
+            if (prev === null) return prev;
+            return prev === wedding.gallery.length - 1 ? 0 : prev + 1;
+          });
+        }}
+      >
+        ›
+      </button>
+    )}
 
     <motion.div
       key={selectedImageIndex}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.18}
+      dragElastic={0.25}
+      style={{ touchAction: "pan-y" }}
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.25 }}
-      onClick={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation();
+        setShowGalleryControls((prev) => !prev);
+      }}
       onDragEnd={(_, info) => {
-        if (info.offset.x < -80) {
+        if (info.offset.x < -40) {
           setSelectedImageIndex((prev) => {
             if (prev === null) return prev;
             return prev === wedding.gallery.length - 1 ? 0 : prev + 1;
           });
         }
 
-        if (info.offset.x > 80) {
+        if (info.offset.x > 40) {
           setSelectedImageIndex((prev) => {
             if (prev === null) return prev;
             return prev === 0 ? wedding.gallery.length - 1 : prev - 1;
@@ -1498,12 +1515,15 @@ const submitGuestbook = async () => {
       <img
         src={wedding.gallery[selectedImageIndex]}
         alt={`확대 이미지 ${selectedImageIndex + 1}`}
-        className="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl"
+        draggable={false}
+        className="max-h-[78vh] max-w-full select-none rounded-2xl object-contain shadow-2xl"
       />
 
-      <div className="mt-5 rounded-full bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
-        {selectedImageIndex + 1} / {wedding.gallery.length}
-      </div>
+      {showGalleryControls && (
+        <div className="mt-5 rounded-full bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
+          {selectedImageIndex + 1} / {wedding.gallery.length}
+        </div>
+      )}
     </motion.div>
   </div>
 )}
