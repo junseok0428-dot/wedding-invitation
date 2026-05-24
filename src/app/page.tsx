@@ -202,11 +202,46 @@ const guestbook = [
 function daysUntilWedding() {
   const weddingDate = new Date(wedding.weddingDateISO);
   const today = new Date();
+  
+  const todayMidnight = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+
   const diff = Math.ceil(
     (weddingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
 
   return diff > 0 ? diff : 0;
+}
+
+function getTimeUntilWedding() {
+  const weddingDate = new Date(wedding.weddingDateISO);
+  const now = new Date();
+
+  let diff = weddingDate.getTime() - now.getTime();
+
+  if (diff < 0) {
+    diff = 0;
+  }
+
+  const totalDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+  diff -= totalDays * 1000 * 60 * 60 * 24;
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  diff -= hours * 1000 * 60 * 60;
+
+  const minutes = Math.floor(diff / (1000 * 60));
+  diff -= minutes * 1000 * 60;
+
+  const seconds = Math.floor(diff / 1000);
+
+  return {
+    hours,
+    minutes,
+    seconds,
+  };
 }
 
 
@@ -488,7 +523,9 @@ function AccountGroup({
 
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+  null
+);
 
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
 const [guestName, setGuestName] = useState("");
@@ -506,6 +543,17 @@ const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
 
     return () => clearInterval(timer);
   }, []);
+
+useEffect(() => {
+  setTimeUntilWedding(getTimeUntilWedding());
+
+  const timer = setInterval(() => {
+    setTimeUntilWedding(getTimeUntilWedding());
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []);
+
 
   useEffect(() => {
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -558,6 +606,13 @@ const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
     supabase.removeChannel(channel);
   };
 }, []);
+
+const [timeUntilWedding, setTimeUntilWedding] = useState({
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+});
+
 
   const dday = useMemo(() => daysUntilWedding(), []);
   const calendar = useMemo(() => getCalendarDays(), []);
@@ -829,11 +884,11 @@ const submitGuestbook = async () => {
             className="mx-auto mt-6 grid max-w-[310px] grid-cols-4 gap-2"
           >
             {[
-              ["DAYS", dday],
-              ["HOUR", 0],
-              ["MIN", 0],
-              ["SEC", 0],
-            ].map(([label, value]) => (
+  ["DAYS", dday],
+  ["HOUR", timeUntilWedding.hours],
+  ["MIN", timeUntilWedding.minutes],
+  ["SEC", timeUntilWedding.seconds],
+].map(([label, value]) => (
               <motion.div
                 key={label}
                 variants={fadeUp}
@@ -1108,7 +1163,7 @@ const submitGuestbook = async () => {
                 key={src}
                 src={src}
                 index={index}
-                onClick={() => setSelectedImage(src)}
+                onClick={() => setSelectedImageIndex(index)}
               />
             ))}
           </div>
@@ -1372,27 +1427,86 @@ const submitGuestbook = async () => {
           </div>
         </section>
 
-        {selectedImage && (
-          <div
-            className="fixed inset-0 z-[999] flex items-center justify-center bg-black/85 px-4"
-            onClick={() => setSelectedImage(null)}
-          >
-            <button
-              type="button"
-              className="absolute right-5 top-5 z-10 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur"
-              onClick={() => setSelectedImage(null)}
-            >
-              닫기
-            </button>
+        {selectedImageIndex !== null && (
+  <div
+    className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 px-4"
+    onClick={() => setSelectedImageIndex(null)}
+  >
+    <button
+      type="button"
+      className="absolute right-5 top-5 z-20 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur"
+      onClick={() => setSelectedImageIndex(null)}
+    >
+      닫기
+    </button>
 
-            <img
-              src={selectedImage}
-              alt="확대 이미지"
-              className="max-h-[88vh] max-w-full rounded-2xl object-contain shadow-2xl"
-              onClick={(event) => event.stopPropagation()}
-            />
-          </div>
-        )}
+    <button
+      type="button"
+      className="absolute left-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+      onClick={(event) => {
+        event.stopPropagation();
+        setSelectedImageIndex((prev) => {
+          if (prev === null) return prev;
+          return prev === 0 ? wedding.gallery.length - 1 : prev - 1;
+        });
+      }}
+    >
+      ‹
+    </button>
+
+    <button
+      type="button"
+      className="absolute right-4 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+      onClick={(event) => {
+        event.stopPropagation();
+        setSelectedImageIndex((prev) => {
+          if (prev === null) return prev;
+          return prev === wedding.gallery.length - 1 ? 0 : prev + 1;
+        });
+      }}
+    >
+      ›
+    </button>
+
+    <motion.div
+      key={selectedImageIndex}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.18}
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.25 }}
+      onClick={(event) => event.stopPropagation()}
+      onDragEnd={(_, info) => {
+        if (info.offset.x < -80) {
+          setSelectedImageIndex((prev) => {
+            if (prev === null) return prev;
+            return prev === wedding.gallery.length - 1 ? 0 : prev + 1;
+          });
+        }
+
+        if (info.offset.x > 80) {
+          setSelectedImageIndex((prev) => {
+            if (prev === null) return prev;
+            return prev === 0 ? wedding.gallery.length - 1 : prev - 1;
+          });
+        }
+      }}
+      className="flex max-h-[88vh] w-full max-w-[420px] flex-col items-center justify-center"
+    >
+      <img
+        src={wedding.gallery[selectedImageIndex]}
+        alt={`확대 이미지 ${selectedImageIndex + 1}`}
+        className="max-h-[78vh] max-w-full rounded-2xl object-contain shadow-2xl"
+      />
+
+      <div className="mt-5 rounded-full bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
+        {selectedImageIndex + 1} / {wedding.gallery.length}
+      </div>
+    </motion.div>
+  </div>
+)}
 
         {copied && (
           <motion.div
