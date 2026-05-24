@@ -23,6 +23,38 @@ import {
   ChevronDown as DownIcon,
 } from "lucide-react";
 
+declare global {
+  interface Window {
+    Kakao?: {
+      init: (key: string) => void;
+      isInitialized: () => boolean;
+      Share: {
+        sendDefault: (options: {
+          objectType: "feed";
+          content: {
+            title: string;
+            description: string;
+            imageUrl: string;
+            link: {
+              mobileWebUrl: string;
+              webUrl: string;
+            };
+          };
+          buttons: {
+            title: string;
+            link: {
+              mobileWebUrl: string;
+              webUrl: string;
+            };
+          }[];
+        }) => void;
+      };
+    };
+  }
+}
+
+const KAKAO_JAVASCRIPT_KEY = "1c15ce720654ad417dcb38d89a2415b8";
+
 const wedding = {
   groom: "강준석",
   bride: "윤선영",
@@ -470,21 +502,42 @@ export default function MobileWeddingInvitation() {
   };
 
   const shareInvitation = async () => {
-    const shareData = {
+  const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
+  const imageUrl =
+    "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png";
+
+  if (!window.Kakao) {
+    await navigator.clipboard.writeText(invitationUrl);
+    alert("카카오 공유 준비 중입니다. 링크를 복사했어요.");
+    return;
+  }
+
+  if (!window.Kakao.isInitialized()) {
+    window.Kakao.init(KAKAO_JAVASCRIPT_KEY);
+  }
+
+  window.Kakao.Share.sendDefault({
+    objectType: "feed",
+    content: {
       title: `${wedding.groom}♡${wedding.bride} 모바일 청첩장`,
-      text: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
-      url: window.location.href,
-    };
-
-    if (navigator.share) {
-      await navigator.share(shareData);
-      return;
-    }
-
-    await navigator.clipboard.writeText(window.location.href);
-    setCopied("share");
-    setTimeout(() => setCopied(""), 1600);
-  };
+      description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
+      imageUrl,
+      link: {
+        mobileWebUrl: invitationUrl,
+        webUrl: invitationUrl,
+      },
+    },
+    buttons: [
+      {
+        title: "청첩장 보기",
+        link: {
+          mobileWebUrl: invitationUrl,
+          webUrl: invitationUrl,
+        },
+      },
+    ],
+  });
+};
 
   return (
     <div className="min-h-screen bg-[#e8dfd2] text-stone-800">

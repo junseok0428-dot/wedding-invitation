@@ -51,9 +51,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`${gowunBatang.variable} ${playfair.variable}`}>
-        {children}
-      </body>
+<body className={`${gowunBatang.variable} ${playfair.variable}`}>
+  {children}
+  <script
+    src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js"
+    async
+  />
+</body>
     </html>
   );
 }
