@@ -1519,11 +1519,26 @@ const submitGuestbook = async () => {
         className="max-h-[78vh] max-w-full select-none rounded-2xl object-contain shadow-2xl"
       />
 
-      {showGalleryControls && (
-        <div className="mt-5 rounded-full bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
-          {selectedImageIndex + 1} / {wedding.gallery.length}
-        </div>
-      )}
+<div className="mt-5 flex h-10 items-center justify-center">
+  {showGalleryControls ? (
+    <div className="rounded-full bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
+      {selectedImageIndex + 1} / {wedding.gallery.length}
+    </div>
+  ) : (
+    <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+      {wedding.gallery.map((_, dotIndex) => (
+        <span
+          key={dotIndex}
+          className={`h-2 w-2 rounded-full transition-all duration-200 ${
+            dotIndex === selectedImageIndex
+              ? "scale-125 bg-white"
+              : "bg-white/40"
+          }`}
+        />
+      ))}
+    </div>
+  )}
+</div>
     </motion.div>
   </div>
 )}
