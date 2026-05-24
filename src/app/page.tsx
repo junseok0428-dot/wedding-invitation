@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
+import { createClient } from "@supabase/supabase-js";
+
 import {
   MapPin,
   Copy,
@@ -53,7 +55,19 @@ declare global {
   }
 }
 
+type GuestbookEntry = {
+  id: number;
+  name: string;
+  message: string;
+  created_at: string;
+};
+
 const KAKAO_JAVASCRIPT_KEY = "1c15ce720654ad417dcb38d89a2415b8";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const wedding = {
   groom: "강준석",
@@ -475,6 +489,12 @@ function AccountGroup({
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
+const [guestName, setGuestName] = useState("");
+const [guestMessage, setGuestMessage] = useState("");
+const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
+
   const [timeSinceFirstMet, setTimeSinceFirstMet] = useState(
     getTimeSinceFirstMet()
   );
@@ -487,6 +507,55 @@ export default function MobileWeddingInvitation() {
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return;
+  }
+
+  const loadGuestbook = async () => {
+    const { data, error } = await supabase
+      .from("guestbook")
+      .select("id, name, message, created_at")
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setGuestbookEntries(data || []);
+  };
+
+  loadGuestbook();
+
+  const channel = supabase
+    .channel("guestbook-realtime")
+    .on(
+      "postgres_changes",
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "guestbook",
+      },
+      (payload) => {
+        const newEntry = payload.new as GuestbookEntry;
+
+        setGuestbookEntries((prev) => {
+          if (prev.some((entry) => entry.id === newEntry.id)) {
+            return prev;
+          }
+
+          return [newEntry, ...prev].slice(0, 50);
+        });
+      }
+    )
+    .subscribe();
+
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
 
   const dday = useMemo(() => daysUntilWedding(), []);
   const calendar = useMemo(() => getCalendarDays(), []);
@@ -500,6 +569,58 @@ export default function MobileWeddingInvitation() {
       alert("복사에 실패했어요. 직접 선택해서 복사해주세요.");
     }
   };
+
+const submitGuestbook = async () => {
+  const name = guestName.trim();
+  const message = guestMessage.trim();
+
+  if (!name) {
+    alert("이름을 입력해주세요.");
+    return;
+  }
+
+  if (!message) {
+    alert("축하 메시지를 입력해주세요.");
+    return;
+  }
+
+  if (name.length > 20) {
+    alert("이름은 20자 이내로 입력해주세요.");
+    return;
+  }
+
+  if (message.length > 300) {
+    alert("메시지는 300자 이내로 입력해주세요.");
+    return;
+  }
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    alert("방명록 설정이 아직 완료되지 않았어요.");
+    return;
+  }
+
+  try {
+    setIsSubmittingGuestbook(true);
+
+    const { error } = await supabase.from("guestbook").insert({
+      name,
+      message,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    setGuestName("");
+    setGuestMessage("");
+    alert("방명록이 등록되었습니다.");
+  } catch (error) {
+    console.error(error);
+    alert("방명록 등록 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
+  } finally {
+    setIsSubmittingGuestbook(false);
+  }
+};
 
   const shareInvitation = async () => {
   const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
@@ -1032,34 +1153,84 @@ export default function MobileWeddingInvitation() {
         </Section>
 
         <Section>
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              GUESTBOOK
-            </p>
-            <h2 className="font-serif text-2xl">방명록</h2>
-            <p className="mt-3 text-sm text-stone-500">
-              정식 저장 기능은 추후 추가할 수 있어요.
-            </p>
-          </div>
+  <div className="text-center">
+    <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+      GUESTBOOK
+    </p>
+    <h2 className="font-serif text-2xl">방명록</h2>
+    <p className="mt-3 text-sm text-stone-500">
+      두 사람에게 따뜻한 축하 인사를 남겨주세요.
+    </p>
+  </div>
 
-          <div className="mt-8 space-y-3">
-            {guestbook.map((item) => (
-              <div
-                key={item.date}
-                className="rounded-[1.7rem] bg-white p-5 shadow-sm"
-              >
-                <p className="text-xs tracking-[0.22em] text-stone-400">
-                  from.
-                </p>
-                <p className="mt-1 font-semibold">{item.name}</p>
-                <p className="mt-3 text-sm leading-6 text-stone-600">
-                  {item.text}
-                </p>
-                <p className="mt-3 text-xs text-stone-400">{item.date}</p>
-              </div>
-            ))}
-          </div>
-        </Section>
+  <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
+    <div className="space-y-3">
+      <input
+        value={guestName}
+        onChange={(event) => setGuestName(event.target.value)}
+        maxLength={20}
+        placeholder="이름"
+        className="w-full rounded-2xl bg-stone-50 px-4 py-3 text-sm outline-none ring-1 ring-stone-100 focus:ring-stone-300"
+      />
+
+      <textarea
+        value={guestMessage}
+        onChange={(event) => setGuestMessage(event.target.value)}
+        maxLength={300}
+        rows={4}
+        placeholder="축하 메시지를 입력해주세요."
+        className="w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 outline-none ring-1 ring-stone-100 focus:ring-stone-300"
+      />
+
+      <div className="flex items-center justify-between text-xs text-stone-400">
+        <span>최대 300자</span>
+        <span>{guestMessage.length}/300</span>
+      </div>
+
+      <button
+        type="button"
+        onClick={submitGuestbook}
+        disabled={isSubmittingGuestbook}
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
+      >
+        <MessageCircle className="h-4 w-4" />
+        {isSubmittingGuestbook ? "등록 중..." : "방명록 남기기"}
+      </button>
+    </div>
+  </div>
+
+  <div className="mt-7 space-y-3">
+    {guestbookEntries.length === 0 ? (
+      <div className="rounded-[1.7rem] bg-white p-5 text-center text-sm text-stone-400 shadow-sm">
+        아직 등록된 방명록이 없습니다.
+      </div>
+    ) : (
+      guestbookEntries.map((item) => (
+        <div
+          key={item.id}
+          className="rounded-[1.7rem] bg-white p-5 shadow-sm"
+        >
+          <p className="text-xs tracking-[0.22em] text-stone-400">
+            from.
+          </p>
+          <p className="mt-1 font-semibold">{item.name}</p>
+          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-600">
+            {item.message}
+          </p>
+          <p className="mt-3 text-xs text-stone-400">
+            {new Date(item.created_at).toLocaleString("ko-KR", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+        </div>
+      ))
+    )}
+  </div>
+</Section>
 
         <Section className="bg-white/60">
           <div className="text-center">
