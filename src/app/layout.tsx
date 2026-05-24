@@ -24,13 +24,13 @@ export const metadata: Metadata = {
     url: "https://wedding-invitation-gamma-olive.vercel.app",
     siteName: "Wedding Invitation",
     images: [
-      {
-        url: "/images/og-image.png",
-        width: 2000,
-        height: 630,
-        alt: "강준석♡윤선영 모바일 청첩장",
-      },
-    ],
+  {
+    url: "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png",
+    width: 1200,
+    height: 630,
+    alt: "강준석♡윤선영 모바일 청첩장",
+  },
+],
     locale: "ko_KR",
     type: "website",
   },
@@ -38,7 +38,9 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "강준석♡윤선영 모바일 청첩장",
     description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
-    images: ["/images/og-image.png"],
+    images: [
+  "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png",
+],
   },
 };
 

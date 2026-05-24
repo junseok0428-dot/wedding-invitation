@@ -42,7 +42,7 @@ const wedding = {
   brideMother: "최희영",
   groomPhone: "010-5609-9428",
   bridePhone: "010-5573-1226",
-  groomAccount: "신한 110-000-000000 강준석",
+  groomAccount: "신한 333-333-3737373 강준석",
   groomFatherAccount: "국민 000000-00-000000 강○○",
   groomMotherAccount: "우리 0000-000-000000 김○○",
   brideAccount: "국민 000000-00-000000 윤선영",
