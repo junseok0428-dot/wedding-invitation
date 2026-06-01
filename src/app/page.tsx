@@ -766,8 +766,8 @@ const submitGuestbook = async () => {
                 D-{dday}
               </div>
 
-              <p className="mb-2 text-lg tracking-widest">{wedding.date}</p>
-              <p className="text-sm opacity-95">{wedding.time}</p>
+              <p className="mb-2 text-lg tracking-widest">2027. 01. 30. 토요일</p>
+              <p className="text-sm opacity-95">오후 3시 10분</p>
 
               <motion.div
                 animate={{ y: [0, 8, 0] }}
