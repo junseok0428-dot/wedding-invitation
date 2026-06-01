@@ -1136,7 +1136,7 @@ const toggleMusic = async () => {
           <h2 className="font-serif text-2xl">우리가 함께한 시간</h2>
           <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
             <p className="text-sm text-stone-500">처음 만난 날</p>
-            <p className="mt-2 font-serif text-2xl">2026-03-07</p>
+            <p className="mt-2 font-serif text-2xl">2026-02-18</p>
             <div className="my-5 h-px bg-stone-100" />
             <p className="text-sm text-stone-500">오늘까지 함께 걸어온 시간</p>
             <p className="mt-2 text-2xl font-semibold">
