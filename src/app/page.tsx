@@ -830,11 +830,12 @@ const toggleMusic = async () => {
     신랑
   </p>
   <p className="font-serif text-base leading-8 text-stone-700">
-    {wedding.groomFather} · {wedding.groomMother}의 장남{" "}
-    <strong className="font-semibold text-stone-800">
-      {wedding.groom}
-    </strong>
-  </p>
+  {wedding.groomFather} · {wedding.groomMother}
+  <span className="text-xs text-stone-500">의</span> 장남{" "}
+  <strong className="font-semibold text-stone-800">
+    {wedding.groom}
+  </strong>
+</p>
 
   <div className="mx-auto my-5 h-px w-12 bg-stone-200" />
 
@@ -842,7 +843,8 @@ const toggleMusic = async () => {
     신부
   </p>
   <p className="font-serif text-base leading-8 text-stone-700">
-    {wedding.brideFather} · {wedding.brideMother}의 차녀{" "}
+    {wedding.brideFather} · {wedding.brideMother}
+    <span className="text-xs text-stone-500">의</span> 차녀{" "}
     <strong className="font-semibold text-stone-800">
       {wedding.bride}
     </strong>
@@ -1116,7 +1118,6 @@ const toggleMusic = async () => {
               </div>
             ))}
           </div>
-
 
         </Section>
 
