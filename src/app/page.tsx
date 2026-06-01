@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 
 import {
+  Volume2,
+  VolumeX,
   MapPin,
   Copy,
   Phone,
@@ -17,12 +19,12 @@ import {
   CalendarDays,
   MessageCircle,
   Camera,
-  Send,
+
   Car,
   Train,
   Bus,
   Clock,
-  ChevronDown as DownIcon,
+
 } from "lucide-react";
 
 declare global {
@@ -75,37 +77,49 @@ const wedding = {
   date: "2027. 01. 30",
   weddingDateISO: "2027-01-30T15:10:00",
   firstMetDateISO: "2026-03-07T00:00:00",
-  time: "토요일 오후 3시 10분",
-  secondTime: "오후 4시",
+  time: "오후 3시 10분",
+  secondTime: "오후 3시",
   venue: "베니르홀",
-  hall: "웨딩스퀘어 강변",
-  address: "서울 광진구 광나루로56길 85 테크노마트 3,4층",
+  hall: "웨딩스퀘어 강변 3층",
+  address: "서울 광진구 광나루로56길 85 테크노마트 3층",
   intro:
-    "저희 두 사람의 작은 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
+    //"저희 두 사람의 소중한 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
+    "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n따뜻한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n따뜻한 마음으로 축복해 주시면\n감사하겠습니다.",
   groomFather: "강형진",
   groomMother: "유숙희",
   brideFather: "윤태열",
   brideMother: "최희영",
   groomPhone: "010-5609-9428",
   bridePhone: "010-5573-1226",
-  groomAccount: "신한 333-333-3737373 강준석",
-  groomFatherAccount: "국민 000000-00-000000 강○○",
-  groomMotherAccount: "우리 0000-000-000000 김○○",
-  brideAccount: "국민 000000-00-000000 윤선영",
-  brideFatherAccount: "신한 110-000-000000 윤○○",
-  brideMotherAccount: "하나 000-000000-00000 박○○",
+  groomAccount: "국민 750602-01-234482 강준석",
+  groomFatherAccount: "농협 821113~56~085108 강형진",
+  groomMotherAccount: "농협 356-0695-5044-13 유숙희",
+  brideAccount: "국민 539701-04-021122 윤선영",
+  brideFatherAccount: "신한 110-000-000000 윤태열",
+  brideMotherAccount: "하나 000-000000-00000 최희영",
   naverMapUrl: "https://naver.me/FdCx2LFq",
   kakaoMapUrl: "https://place.map.kakao.com/23397688",
   googleMapUrl: "https://share.google/Ajz4IFUghVclkvLRt",
   heroImage: "/images/main.jpg",
   middleImage: "/images/gallery2.jpg",
   endingImage: "/images/gallery5.jpg",
+  mainGallery: [
+  "/images/gallery1.jpg",
+  "/images/gallery2.jpg",
+  "/images/gallery3.jpg",
+  "/images/gallery4.jpg",
+],
   gallery: [
     "/images/gallery1.jpg",
     "/images/gallery2.jpg",
     "/images/gallery3.jpg",
     "/images/gallery4.jpg",
     "/images/gallery5.jpg",
+    "/images/gallery6.jpg",
+    "/images/gallery7.jpg",
+    "/images/gallery8.jpg",
+    "/images/gallery11.jpg",
+    "/images/gallery12.jpg",
   ],
 };
 
@@ -113,19 +127,19 @@ const aboutUs = [
   {
     role: "신랑",
     name: wedding.groom,
-    family: `${wedding.groomFather} · ${wedding.groomMother}의 아들`,
-    birth: "1994년 04월 28일",
-    mbti: "ISTJ",
-    tags: "#러닝 #캠핑 #차분함",
+    family: `${wedding.groomFather} · ${wedding.groomMother}의 장남`,
+    //birth: "1994년 04월 28일",
+    //mbti: "ISTJ",
+    //tags: "#러닝 #캠핑 #차분함",
     image: "/images/groom.jpg",
   },
   {
     role: "신부",
     name: wedding.bride,
-    family: `${wedding.brideFather} · ${wedding.brideMother}의 딸`,
-    birth: "1991년 02월 21일",
-    mbti: "ISFP",
-    tags: "#여행 #사진 #밝은웃음",
+    family: `${wedding.brideFather} · ${wedding.brideMother}의 차녀`,
+    //birth: "1991년 02월 21일",
+    //mbti: "ISFP",
+    //tags: "#여행 #사진 #밝은웃음",
     image: "/images/bride.jpg",
   },
 ];
@@ -157,29 +171,6 @@ const timeline = [
   },
 ];
 
-const interviews = [
-  {
-    q: "첫인상은 어땠나요?",
-    groom:
-      "밝고 따뜻한 느낌이 가장 먼저 기억나요. 처음 만났는데도 오래 알고 지낸 사람처럼 편했습니다.",
-    bride:
-      "말은 많지 않았지만 진중한 느낌이었어요. 웃을 때 편안한 분위기가 인상적이었습니다.",
-  },
-  {
-    q: "결혼을 결심한 계기가 있다면?",
-    groom:
-      "매일의 사소한 순간이 즐겁고 편안했어요. 함께라면 어떤 날도 잘 지나갈 수 있겠다는 확신이 들었습니다.",
-    bride:
-      "어떤 상황에서도 제 마음을 먼저 생각해주는 모습이 고마웠어요. 그 따뜻함이 확신이 되었습니다.",
-  },
-  {
-    q: "앞으로 어떤 부부가 되고 싶나요?",
-    groom:
-      "서로를 가장 먼저 응원하는 편안한 팀이 되고 싶습니다.",
-    bride:
-      "좋은 날에도 힘든 날에도 같은 편이 되어주는 부부가 되고 싶습니다.",
-  },
-];
 
 const guestbook = [
   {
@@ -244,6 +235,20 @@ function getTimeUntilWedding() {
   };
 }
 
+function getGalleryDotIndex(currentIndex: number, total: number) {
+  if (total <= 1) return 0;
+
+  if (currentIndex === 0) return 0;
+  if (currentIndex === total - 1) return 4;
+
+  const progress = currentIndex / (total - 1);
+
+  if (progress < 0.4) return 1;
+  if (progress < 0.8) return 2;
+  if (currentIndex < total - 1) return 3;
+
+  return 4;
+}
 
 function getTimeSinceFirstMet() {
   const firstMetDate = new Date(wedding.firstMetDateISO);
@@ -307,13 +312,17 @@ function getCalendarDays() {
     });
   }
 
-  while (days.length % 7 !== 0) {
-    days.push({
-      day: days.length,
-      currentMonth: false,
-      isWeddingDay: false,
-    });
-  }
+let nextMonthDay = 1;
+
+while (days.length % 7 !== 0) {
+  days.push({
+    day: nextMonthDay,
+    currentMonth: false,
+    isWeddingDay: false,
+  });
+
+  nextMonthDay += 1;
+}
 
   return {
     year,
@@ -478,49 +487,6 @@ function GalleryImage({
   );
 }
 
-function AccountGroup({
-  title,
-  accounts,
-  copyText,
-}: {
-  title: string;
-  accounts: string[];
-  copyText: (label: string, text: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <div className="overflow-hidden rounded-[1.8rem] bg-white shadow-sm">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between px-5 py-5 text-left font-medium"
-      >
-        <span>{title}</span>
-        <DownIcon
-          className={`h-5 w-5 transition ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {open && (
-        <div className="space-y-2 border-t border-stone-100 px-5 pb-5 pt-3">
-          {accounts.map((account) => (
-            <button
-              key={account}
-              type="button"
-              onClick={() => copyText(account, account)}
-              className="flex w-full items-center justify-between rounded-2xl bg-stone-50 px-4 py-3 text-left text-sm"
-            >
-              <span className="leading-6">{account}</span>
-              <Copy className="h-4 w-4 text-stone-500" />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
@@ -531,11 +497,34 @@ const [showGalleryControls, setShowGalleryControls] = useState(true);
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
 const [guestName, setGuestName] = useState("");
 const [guestMessage, setGuestMessage] = useState("");
+
+const audioRef = useRef<HTMLAudioElement | null>(null);
+const [isMusicOn, setIsMusicOn] = useState(false);
+
 const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
 
   const [timeSinceFirstMet, setTimeSinceFirstMet] = useState(
     getTimeSinceFirstMet()
   );
+
+useEffect(() => {
+  const audio = audioRef.current;
+
+  if (!audio) return;
+
+  audio.volume = 0.35;
+
+  const playMusic = async () => {
+    try {
+      await audio.play();
+      setIsMusicOn(true);
+    } catch {
+      setIsMusicOn(false);
+    }
+  };
+
+  playMusic();
+}, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -680,6 +669,20 @@ const submitGuestbook = async () => {
   }
 };
 
+const toggleMusic = async () => {
+  const audio = audioRef.current;
+
+  if (!audio) return;
+
+  if (audio.paused) {
+    await audio.play();
+    setIsMusicOn(true);
+  } else {
+    audio.pause();
+    setIsMusicOn(false);
+  }
+};
+
   const shareInvitation = async () => {
   const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
   const imageUrl =
@@ -720,6 +723,26 @@ const submitGuestbook = async () => {
 
   return (
     <div className="min-h-screen bg-[#e8dfd2] text-stone-800">
+
+    <audio
+      ref={audioRef}
+      src="/audio/wedding-bgm.mp3"
+      loop
+      preload="auto"
+    />
+
+    <button
+      type="button"
+      onClick={toggleMusic}
+      className="fixed right-4 top-4 z-[999] flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-stone-800 shadow-md backdrop-blur"
+    >
+      {isMusicOn ? (
+        <Volume2 className="h-5 w-5" />
+      ) : (
+        <VolumeX className="h-5 w-5" />
+      )}
+    </button>
+
       <main className="mx-auto min-h-screen max-w-[430px] overflow-hidden bg-[#fbf8f3] shadow-2xl">
         <section className="relative min-h-screen overflow-hidden bg-stone-900">
           <div className="absolute inset-0">
@@ -748,26 +771,27 @@ const submitGuestbook = async () => {
               </motion.p>
 
               <motion.h1
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.45, duration: 0.9 }}
-                className="font-serif text-5xl leading-tight tracking-wide drop-shadow-sm"
-              >
-                {wedding.groom}
-                <br />
-                <span className="text-6xl">♡</span>
-                <br />
-                {wedding.bride}
-              </motion.h1>
+  initial={{ opacity: 0, y: 12 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.45, duration: 0.9 }}
+  className="font-serif text-[30px] leading-tight tracking-[0.16em] drop-shadow-sm"
+>
+  {wedding.groom}
+  <span className="mx-3 text-[24px] font-light text-white/75">&amp;</span>
+  {wedding.bride}
+</motion.h1>
             </div>
 
             <div className="pb-7">
-              <div className="mx-auto mb-7 w-fit rounded-full border border-white/40 bg-white/15 px-5 py-2 text-xs backdrop-blur-md">
-                D-{dday}
-              </div>
+              <div className="mx-auto mb-7 flex items-center justify-center gap-3 text-white/90">
+  <span className="h-px w-3 bg-white/40" />
+  <span className="text-xs tracking-[0.25em]">D-{dday}</span>
+  <span className="h-px w-3 bg-white/40" />
+</div>
 
-              <p className="mb-2 text-lg tracking-widest">2027. 01. 30. 토요일</p>
-              <p className="text-sm opacity-95">오후 3시 10분</p>
+              <p className="mb-0.1 text-lg tracking-widest">2027. 01. 30. 토
+                </p>
+              <p className="text-sm opacity-90">오후 3시 10분</p>
 
               <motion.div
                 animate={{ y: [0, 8, 0] }}
@@ -777,9 +801,11 @@ const submitGuestbook = async () => {
                 <ChevronDown className="h-7 w-7" />
               </motion.div>
             </div>
+
+            
           </motion.div>
 
-          <TornEdge />
+
         </section>
 
         <Section className="text-center">
@@ -799,17 +825,29 @@ const submitGuestbook = async () => {
             {wedding.intro}
           </p>
 
-          <div className="mt-9 rounded-[2rem] bg-white p-5 text-sm leading-7 shadow-sm">
-            <p>
-              {wedding.groomFather} · {wedding.groomMother}의 아들{" "}
-              <strong>{wedding.groom}</strong>
-            </p>
-            <p className="my-1 text-stone-300">|</p>
-            <p>
-              {wedding.brideFather} · {wedding.brideMother}의 딸{" "}
-              <strong>{wedding.bride}</strong>
-            </p>
-          </div>
+          <div className="mt-9 rounded-[2rem] bg-white p-6 text-center shadow-sm">
+  <p className="mb-2 text-xs tracking-[0.22em] text-stone-400">
+    신랑
+  </p>
+  <p className="font-serif text-base leading-8 text-stone-700">
+    {wedding.groomFather} · {wedding.groomMother}의 장남{" "}
+    <strong className="font-semibold text-stone-800">
+      {wedding.groom}
+    </strong>
+  </p>
+
+  <div className="mx-auto my-5 h-px w-12 bg-stone-200" />
+
+  <p className="mb-2 text-xs tracking-[0.22em] text-stone-400">
+    신부
+  </p>
+  <p className="font-serif text-base leading-8 text-stone-700">
+    {wedding.brideFather} · {wedding.brideMother}의 차녀{" "}
+    <strong className="font-semibold text-stone-800">
+      {wedding.bride}
+    </strong>
+  </p>
+</div>
 
           <div className="mt-6 grid grid-cols-2 gap-3">
             <a
@@ -827,34 +865,26 @@ const submitGuestbook = async () => {
           </div>
         </Section>
 
-        <Section className="bg-[#efe6da] text-center">
-          <TornEdge top />
+        <Section className="bg-[#fbf8f3] text-center">
+
 
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
             WEDDING DAY
           </p>
-          <h2 className="font-serif text-2xl">{calendar.year}년 {String(calendar.month).padStart(2, "0")}월</h2>
-          <p className="mt-2 text-sm text-stone-600">
-            하루, 한 번의 소중한 시간으로 여러분을 초대합니다.
-          </p>
+<h2 className="font-serif text-3xl">
+  {calendar.year}.{String(calendar.month).padStart(2, "0")}.30.
+
+</h2>
+
+<p className="mt-2 text-sm tracking-[0.25em] text-stone-400">
+  SAT
+</p>
+<p className="mt-2 text-sm text-stone-600">
+  하루, 한 번의 소중한 시간으로 여러분을 초대합니다.
+</p>
 
           <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
-            <div className="mb-5 grid grid-cols-2 gap-3 text-left">
-              <div className="rounded-3xl bg-[#fbf8f3] p-4">
-                <p className="text-xs text-stone-500">예식</p>
-                <p className="mt-1 font-semibold">{wedding.time}</p>
-                <p className="mt-2 text-xs leading-5 text-stone-500">
-                  가족과 가까운 분들과 함께하는 따뜻한 예식
-                </p>
-              </div>
-              <div className="rounded-3xl bg-[#fbf8f3] p-4">
-                <p className="text-xs text-stone-500">피로연</p>
-                <p className="mt-1 font-semibold">{wedding.secondTime}</p>
-                <p className="mt-2 text-xs leading-5 text-stone-500">
-                  함께 웃고 인사를 나누는 편안한 시간
-                </p>
-              </div>
-            </div>
+            
 
             <div className="mb-3 grid grid-cols-7 text-center text-xs text-stone-400">
               {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
@@ -877,6 +907,23 @@ const submitGuestbook = async () => {
                   {item.day}
                 </div>
               ))}
+            </div>
+
+<div className="mt-6 grid grid-cols-2 gap-3 text-center">
+              <div className="rounded-3xl bg-[#fbf8f3] p-4 flex flex-col items-center">
+                <p className="text-xs text-stone-500">예식</p>
+                <p className="mt-1 font-semibold">{wedding.time}</p>
+                <p className="mt-2 text-xs leading-5 text-stone-500">
+                  소중한 분들과 함께하는 두 사람의 새로운 시작
+                </p>
+              </div>
+              <div className="rounded-3xl bg-[#fbf8f3] p-4 flex flex-col items-center">
+                <p className="text-xs text-stone-500">식사</p>
+                <p className="mt-1 font-semibold">{wedding.secondTime}</p>
+                <p className="mt-2 text-xs leading-5 text-stone-500">
+                  식사와 함께 편안히 담소를 나누는 시간
+                </p>
+              </div>
             </div>
           </div>
 
@@ -902,11 +949,10 @@ const submitGuestbook = async () => {
           </motion.div>
 
           <p className="mt-5 text-sm text-stone-600">
-            {wedding.groom} {wedding.bride}의 결혼식이{" "}
+            {wedding.groom} ♥ {wedding.bride}의 결혼식이{" "}
             <strong>{dday}</strong>일 남았습니다.
           </p>
 
-          <TornEdge />
         </Section>
 
         <Section>
@@ -938,25 +984,16 @@ const submitGuestbook = async () => {
                   <p className="mt-2 text-sm text-stone-500">
                     {person.family}
                   </p>
-                  <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                    <div className="rounded-2xl bg-stone-50 p-3">
-                      {person.birth}
-                    </div>
-                    <div className="rounded-2xl bg-stone-50 p-3">
-                      {person.mbti}
-                    </div>
-                  </div>
-                  <p className="mt-4 text-sm text-stone-500">
-                    {person.tags}
-                  </p>
+
+
                 </div>
               </div>
             ))}
           </div>
         </Section>
 
-        <Section className="bg-[#efe6da]">
-          <TornEdge top />
+        <Section className="bg-[#fbf8f3]">
+
 
           <div className="text-center">
             <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
@@ -982,9 +1019,9 @@ const submitGuestbook = async () => {
                   src={item.image}
                   alt={item.title}
                   //our timeline 우리의 이야기 사진사이즈
-                  className="h-[300px] w-full rounded-[1.5rem]"
+                  className="h-auto w-full rounded-[1.5rem]"
                 />
-                <div className="mt-4">
+                <div className="mt-4 text-center">
                   <p className="text-xs tracking-[0.22em] text-stone-400">
                     {item.date}
                   </p>
@@ -999,49 +1036,10 @@ const submitGuestbook = async () => {
             ))}
           </div>
 
-          <TornEdge />
         </Section>
 
-        <Section>
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              INTERVIEW
-            </p>
-            <h2 className="font-serif text-2xl">우리에게 물었습니다</h2>
-          </div>
 
-          <div className="mt-8 space-y-5">
-            {interviews.map((item, index) => (
-              <div
-                key={item.q}
-                className="rounded-[2rem] bg-white p-5 shadow-sm"
-              >
-                <p className="text-xs tracking-[0.22em] text-stone-400">
-                  Q{index + 1}.
-                </p>
-                <h3 className="mt-2 font-serif text-xl">{item.q}</h3>
-
-                <div className="mt-5 space-y-4 text-sm leading-7 text-stone-600">
-                  <div className="rounded-3xl bg-stone-50 p-4">
-                    <p className="mb-2 font-semibold text-stone-800">
-                      신랑 {wedding.groom}
-                    </p>
-                    <p>{item.groom}</p>
-                  </div>
-                  <div className="rounded-3xl bg-[#f7f0e8] p-4">
-                    <p className="mb-2 font-semibold text-stone-800">
-                      신부 {wedding.bride}
-                    </p>
-                    <p>{item.bride}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-
-        <Section className="bg-[#efe6da] text-center">
-          <TornEdge top />
+        <Section className="bg-[#fbf8f3] text-center">
 
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
             LOCATION
@@ -1094,18 +1092,13 @@ const submitGuestbook = async () => {
           <div className="mt-5 space-y-3 text-left">
             {[
               {
-                icon: <Bus className="h-5 w-5" />,
-                title: "셔틀버스",
-                text: "10~20분 간격 왕복 운행 · 예식장 정문 앞 하차",
-              },
-              {
                 icon: <Train className="h-5 w-5" />,
-                title: "지하철",
-                text: "가까운 역 1번 출구에서 도보 5분",
+                title: "지하철 이용 시",
+                text: "강변역 1번 출구 맞은편 도보 3분",
               },
               {
                 icon: <Car className="h-5 w-5" />,
-                title: "자가용",
+                title: "자가용 이용 시",
                 text: "예식장 지하 주차장 이용 가능 · 2시간 무료",
               },
             ].map((item) => (
@@ -1124,8 +1117,10 @@ const submitGuestbook = async () => {
             ))}
           </div>
 
-          <TornEdge />
+
         </Section>
+
+
 
         <Section className="text-center">
           <ImageBox
@@ -1159,22 +1154,32 @@ const submitGuestbook = async () => {
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-3">
-            {wedding.gallery.map((src, index) => (
-              <GalleryImage
-                key={src}
-                src={src}
-                index={index}
-                onClick={() => {
-  setSelectedImageIndex(index);
-  setShowGalleryControls(true);
-}}
-              />
-            ))}
-          </div>
+  {wedding.mainGallery.map((src, index) => {
+    const realIndex = wedding.gallery.findIndex((image) => image === src);
+
+    return (
+      <button
+        key={src}
+        type="button"
+        onClick={() => {
+          setSelectedImageIndex(realIndex >= 0 ? realIndex : index);
+          setShowGalleryControls(true);
+        }}
+        className="aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-sm"
+      >
+        <img
+          src={src}
+          alt={`갤러리 대표 이미지 ${index + 1}`}
+          className="h-full w-full object-cover"
+        />
+      </button>
+    );
+  })}
+</div>
         </Section>
 
-        <Section className="bg-[#efe6da]">
-          <TornEdge top />
+        <Section className="bg-[#fbf8f3]">
+
 
           <div className="text-center">
             <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
@@ -1210,7 +1215,7 @@ const submitGuestbook = async () => {
             ))}
           </div>
 
-          <TornEdge />
+
         </Section>
 
         <Section>
@@ -1293,161 +1298,66 @@ const submitGuestbook = async () => {
   </div>
 </Section>
 
-        <Section className="bg-white/60">
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              ACCOUNT
-            </p>
-            <h2 className="font-serif text-2xl">마음 전하는 곳</h2>
-            <p className="mx-auto mt-4 max-w-[280px] text-sm leading-7 text-stone-500">
-              참석이 어려우신 분들을 위해 계좌번호를 안내해 드립니다.
-              너그러운 마음으로 양해 부탁드립니다.
-            </p>
-          </div>
 
-          <div className="mt-8 space-y-3">
-            <AccountGroup
-              title="신랑측 계좌번호"
-              accounts={[
-                wedding.groomAccount,
-                wedding.groomFatherAccount,
-                wedding.groomMotherAccount,
-              ]}
-              copyText={copyText}
-            />
-            <AccountGroup
-              title="신부측 계좌번호"
-              accounts={[
-                wedding.brideAccount,
-                wedding.brideFatherAccount,
-                wedding.brideMotherAccount,
-              ]}
-              copyText={copyText}
-            />
-          </div>
-        </Section>
+<section className="relative min-h-screen overflow-hidden bg-stone-900">
+    <div className="absolute inset-0"></div>
+<div className="absolute inset-0">
+  <ImageBox
+    src={wedding.endingImage}
+    alt="엔딩 사진"
+    className="h-full w-full"
+  />
+</div>
 
-        <Section>
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              RSVP
-            </p>
-            <h2 className="font-serif text-2xl">참석 의사 전달</h2>
-            <p className="mx-auto mt-4 max-w-[270px] text-sm leading-7 text-stone-500">
-              신랑, 신부에게 참석 의사를 미리 전달해 주세요.
-            </p>
-          </div>
+  <div className="absolute inset-0 bg-black/50" />
 
-          <button
-            type="button"
-            onClick={() => alert("RSVP 저장 기능은 다음 단계에서 추가할 수 있어요.")}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-4 text-sm font-semibold text-white"
-          >
-            <Send className="h-4 w-4" />
-            전달하기
-          </button>
+<div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-12 pt-24 text-center text-white">
+  <div className="flex flex-col items-center">
 
-          <button
-            type="button"
-            onClick={() => alert("화환 기능은 외부 서비스 연결 시 추가할 수 있어요.")}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#efe6da] px-5 py-4 text-sm font-semibold text-stone-700"
-          >
-            <Heart className="h-4 w-4" />
-            축하 화환 보내기
-          </button>
-        </Section>
+    <p className="font-serif text-3xl leading-[1.75] drop-shadow-md">
+      저희의 새로운 시작을
+      <br />
+      함께 해주셔서 감사합니다.
+    </p>
 
-        <Section className="bg-[#efe6da] text-center">
-          <TornEdge top />
+    <div className="my-9 h-px w-14 bg-white/40" />
 
-          <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-            GUEST ALBUM
-          </p>
-          <h2 className="font-serif text-2xl">
-            예쁘게 빛난 순간,
-            <br />
-            같이 공유해요!
-          </h2>
+    <p className="font-serif text-2xl leading-[1.8] drop-shadow-md">
+      신랑 {wedding.groom}
+      <br />
+      <span className="text-xl">♥</span>
+      <br />
+      신부 {wedding.bride}
+    </p>
+  </div>
 
-          <div className="mt-8 grid grid-cols-3 gap-2">
-            {wedding.gallery.slice(0, 3).map((src, index) => (
-              <ImageBox
-                key={src}
-                src={src}
-                alt={`게스트 앨범 ${index + 1}`}
-                className="aspect-square rounded-3xl"
-              />
-            ))}
-          </div>
-
-          <p className="mx-auto mt-6 max-w-[280px] text-sm leading-7 text-stone-600">
-            오늘의 추억은 여러분의 한 장에서 완성돼요. 예식 당일,
-            아래 버튼으로 가볍게 공유해주세요!
-          </p>
-
-          <button
-            type="button"
-            onClick={() => alert("사진 업로드 기능은 추후 저장소 연결 후 추가할 수 있어요.")}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-4 text-sm font-semibold text-white"
-          >
-            <Camera className="h-4 w-4" />
-            사진 업로드
-          </button>
-
-          <TornEdge />
-        </Section>
-
-        <section className="relative min-h-[560px] overflow-hidden bg-stone-900">
-          <ImageBox
-            src={wedding.endingImage}
-            alt="엔딩 사진"
-            className="absolute inset-0 h-full w-full opacity-80"
-          />
-          <div className="absolute inset-0 bg-black/45" />
-
-          <div className="relative z-10 flex min-h-[560px] flex-col items-center justify-center px-6 text-center text-white">
-            <Heart className="mb-6 h-8 w-8 fill-white text-white" />
-            <p className="font-serif text-3xl leading-relaxed">
-              저희의 새로운 시작을
-              <br />
-              함께 해주셔서 감사합니다.
-            </p>
-            <p className="mt-8 font-serif text-2xl">
-              신랑 {wedding.groom}
-              <br />
-             ♥
-              <br />             
-              신부 {wedding.bride}
-            </p>
-
-            <button
-              type="button"
-              onClick={shareInvitation}
-              className="mt-10 flex items-center justify-center gap-2 rounded-full bg-[#f7dd4a] px-6 py-4 text-sm font-semibold text-stone-900"
-            >
-              <MessageCircle className="h-4 w-4" />
-              카카오톡으로 공유하기
-            </button>
-          </div>
-        </section>
+    <button
+      type="button"
+      onClick={shareInvitation}
+      className="mt-12 flex items-center justify-center gap-2 rounded-full bg-[#f7dd4a] px-7 py-4 text-sm font-semibold text-stone-900 shadow-lg"
+    >
+      <MessageCircle className="h-4 w-4" />
+      카카오톡으로 공유하기
+    </button>
+  </div>
+</section>
 
 {selectedImageIndex !== null && (
   <div
     className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 px-4"
     onClick={() => setShowGalleryControls((prev) => !prev)}
   >
-    {showGalleryControls && (
-      <button
-        type="button"
-        className="absolute right-5 top-5 z-20 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur"
-        onClick={(event) => {
-          event.stopPropagation();
-          setSelectedImageIndex(null);
-        }}
-      >
-        닫기
-      </button>
-    )}
+    <button
+  type="button"
+  aria-label="닫기"
+  className="absolute right-5 top-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur transition hover:bg-white/30"
+  onClick={(event) => {
+    event.stopPropagation();
+    setSelectedImageIndex(null);
+  }}
+>
+  ×
+</button>
 
     {showGalleryControls && (
       <button
@@ -1520,24 +1430,31 @@ const submitGuestbook = async () => {
       />
 
 <div className="mt-5 flex h-10 items-center justify-center">
-  {showGalleryControls ? (
-    <div className="rounded-full bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
-      {selectedImageIndex + 1} / {wedding.gallery.length}
-    </div>
-  ) : (
-    <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
-      {wedding.gallery.map((_, dotIndex) => (
-        <span
-          key={dotIndex}
-          className={`h-2 w-2 rounded-full transition-all duration-200 ${
-            dotIndex === selectedImageIndex
-              ? "scale-125 bg-white"
-              : "bg-white/40"
-          }`}
-        />
-      ))}
-    </div>
-  )}
+  <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+   {[0, 1, 2].map((dotIndex) => {
+  const isFirstImage = selectedImageIndex === 0;
+  const isLastImage = selectedImageIndex === wedding.gallery.length - 1;
+  const isMiddleImage = !isFirstImage && !isLastImage;
+
+  const isActive =
+    (dotIndex === 0 && isFirstImage) ||
+    (dotIndex === 1 && isMiddleImage) ||
+    (dotIndex === 2 && isLastImage);
+
+  return (
+    <span
+      key={dotIndex}
+      className={`h-2 rounded-full transition-all duration-300 ${
+        isActive && dotIndex === 1
+          ? "w-8 bg-white"
+          : isActive
+            ? "w-2 scale-125 bg-white"
+            : "w-2 bg-white/40"
+      }`}
+    />
+  );
+})}
+  </div>
 </div>
     </motion.div>
   </div>
@@ -1554,9 +1471,9 @@ const submitGuestbook = async () => {
         )}
 
         <footer className="bg-[#fbf8f3] px-6 py-6 text-center text-xs text-stone-400">
-          ©2026 {wedding.groom}♡{wedding.bride} Wedding Invitation
-        </footer>
-      </main>
+        ©{new Date(wedding.weddingDateISO).getFullYear()} {wedding.groom}♡{wedding.bride} Wedding Invitation
+         </footer>
+            </main>
     </div>
   );
 }
