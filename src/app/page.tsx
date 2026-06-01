@@ -831,7 +831,7 @@ const toggleMusic = async () => {
   </p>
   <p className="font-serif text-base leading-8 text-stone-700">
   {wedding.groomFather} · {wedding.groomMother}
-  <span className="text-xs text-stone-500">의</span> 장남{" "}
+  <span className="text-xs text-stone-500">의 장남</span>{" "}
   <strong className="font-semibold text-stone-800">
     {wedding.groom}
   </strong>
@@ -844,7 +844,7 @@ const toggleMusic = async () => {
   </p>
   <p className="font-serif text-base leading-8 text-stone-700">
     {wedding.brideFather} · {wedding.brideMother}
-    <span className="text-xs text-stone-500">의</span> 차녀{" "}
+    <span className="text-xs text-stone-500">의 차녀</span>{" "}
     <strong className="font-semibold text-stone-800">
       {wedding.bride}
     </strong>
