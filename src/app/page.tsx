@@ -76,7 +76,7 @@ const wedding = {
   bride: "윤선영",
   date: "2027. 01. 30",
   weddingDateISO: "2027-01-30T15:10:00",
-  firstMetDateISO: "2026-03-07T00:00:00",
+  firstMetDateISO: "2026-02-18T00:00:00",
   time: "오후 3시 10분",
   secondTime: "오후 3시",
   venue: "베니르홀",
