@@ -84,13 +84,12 @@ const wedding = {
   address: "서울 광진구 광나루로56길 85 테크노마트 3층",
   intro:
     //"저희 두 사람의 소중한 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
-    "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n따뜻한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n따뜻한 마음으로 축복해 주시면\n감사하겠습니다.",
+     "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n행복한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n진심 어린 축복으로 함께해 주시면\n감사하겠습니다.",
   groomFather: "강형진",
   groomMother: "유숙희",
   brideFather: "윤태열",
   brideMother: "최희영",
-  groomPhone: "010-5609-9428",
-  bridePhone: "010-5573-1226",
+
   groomAccount: "국민 750602-01-234482 강준석",
   groomFatherAccount: "농협 821113~56~085108 강형진",
   groomMotherAccount: "농협 356-0695-5044-13 유숙희",
@@ -123,28 +122,6 @@ const wedding = {
   ],
 };
 
-
-
-const aboutUs = [
-  {
-    role: "신랑",
-    name: wedding.groom,
-    family: `${wedding.groomFather} · ${wedding.groomMother}의 장남`,
-    //birth: "1994년 04월 28일",
-    //mbti: "ISTJ",
-    //tags: "#러닝 #캠핑 #차분함",
-    image: "/images/groom.jpg",
-  },
-  {
-    role: "신부",
-    name: wedding.bride,
-    family: `${wedding.brideFather} · ${wedding.brideMother}의 차녀`,
-    //birth: "1991년 02월 21일",
-    //mbti: "ISFP",
-    //tags: "#여행 #사진 #밝은웃음",
-    image: "/images/bride.jpg",
-  },
-];
 
 const timeline = [
   {
@@ -492,6 +469,7 @@ function GalleryImage({
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [selectedMapImage, setSelectedMapImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
   null
 );
@@ -854,20 +832,7 @@ const toggleMusic = async () => {
   </p>
 </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <a
-              href={`tel:${wedding.groomPhone}`}
-              className="rounded-full bg-stone-900 px-4 py-3 text-sm font-medium text-white"
-            >
-              신랑 연락하기
-            </a>
-            <a
-              href={`tel:${wedding.bridePhone}`}
-              className="rounded-full bg-stone-900 px-4 py-3 text-sm font-medium text-white"
-            >
-              신부 연락하기
-            </a>
-          </div>
+
         </Section>
 
         <Section className="bg-[#fbf8f3] text-center">
@@ -960,42 +925,7 @@ const toggleMusic = async () => {
 
         </Section>
 
-        <Section>
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              ABOUT US
-            </p>
-            <h2 className="font-serif text-2xl">저희를 소개합니다</h2>
-          </div>
-
-          <div className="mt-8 space-y-5">
-            {aboutUs.map((person) => (
-              <div
-                key={person.name}
-                className="overflow-hidden rounded-[2rem] bg-white shadow-sm"
-              >
-                <ImageBox
-                  src={person.image}
-                  alt={`${person.role} ${person.name}`}
-                  className="h-[260px] w-full"
-                />
-                <div className="p-5 text-center">
-                  <p className="text-xs tracking-[0.24em] text-stone-400">
-                    {person.role}
-                  </p>
-                  <h3 className="mt-2 font-serif text-2xl">
-                    {person.name}
-                  </h3>
-                  <p className="mt-2 text-sm text-stone-500">
-                    {person.family}
-                  </p>
-
-
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
+        
 
         <Section className="bg-[#fbf8f3]">
 
@@ -1044,6 +974,68 @@ const toggleMusic = async () => {
         </Section>
 
 
+
+
+
+
+
+
+        <Section>
+          <div className="text-center">
+            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+              GALLERY
+            </p>
+            <h2 className="font-serif text-2xl">갤러리</h2>
+          </div>
+
+          <div className="mt-8 grid grid-cols-2 gap-3">
+  {wedding.mainGallery.map((src, index) => {
+    const realIndex = wedding.gallery.findIndex((image) => image === src);
+
+    return (
+      <button
+        key={src}
+        type="button"
+        onClick={() => {
+          setSelectedImageIndex(realIndex >= 0 ? realIndex : index);
+          setShowGalleryControls(true);
+        }}
+        className="aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-sm"
+      >
+        <img
+          src={src}
+          alt={`갤러리 대표 이미지 ${index + 1}`}
+          className="h-full w-full object-cover"
+        />
+      </button>
+    );
+  })}
+</div>
+        </Section>
+
+        <Section className="text-center">
+          <ImageBox
+            src={wedding.middleImage}
+            alt="중간 사진"
+            className="mb-8 h-[300px] w-full rounded-[2rem]"
+          />
+
+          <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+            D+DAY
+          </p>
+          <h2 className="font-serif text-2xl">우리가 함께한 시간</h2>
+          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
+            <p className="text-sm text-stone-500">처음 만난 날</p>
+            <p className="mt-2 font-serif text-2xl">2026-02-18</p>
+            <div className="my-5 h-px bg-stone-100" />
+            <p className="text-sm text-stone-500">오늘까지 함께 걸어온 시간</p>
+            <p className="mt-2 text-2xl font-semibold">
+               {timeSinceFirstMet.days} 일 {timeSinceFirstMet.hours} 시간{" "}
+               {timeSinceFirstMet.minutes} 분 {timeSinceFirstMet.seconds} 초
+              </p>
+          </div>
+        </Section>
+
         <Section className="bg-[#fbf8f3] text-center">
 
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
@@ -1051,18 +1043,54 @@ const toggleMusic = async () => {
           </p>
           <h2 className="font-serif text-2xl">오시는 길</h2>
 
+          <button
+  type="button"
+  onClick={() => setSelectedMapImage("/images/map-weddinghall.png")}
+  className="mt-6 overflow-hidden rounded-[1.5rem] bg-white shadow-sm"
+>
+  <ImageBox
+    src="/images/map-weddinghall.png"
+    alt="웨딩스퀘어 강변점 약도"
+    contain
+    className="h-auto w-full"
+  />
+</button>
+
           <div className="mt-7 rounded-[2rem] bg-white p-6 text-left shadow-sm">
             <div className="mb-4 flex items-start gap-3">
-              <MapPin className="mt-1 h-5 w-5 shrink-0 text-stone-500" />
+  <MapPin className="mt-1 h-5 w-5 shrink-0 text-stone-500" />
 
-              <div>
-                <p className="font-semibold">{wedding.venue}</p>
-                <p className="text-sm text-stone-600">{wedding.hall}</p>
-                <p className="mt-2 text-sm leading-6 text-stone-500">
-                  {wedding.address}
-                </p>
-              </div>
-            </div>
+  <div className="min-w-0 flex-1">
+    <p className="font-semibold">{wedding.venue}</p>
+    <p className="text-sm text-stone-600">{wedding.hall}</p>
+    <p className="mt-2 text-sm leading-6 text-stone-500">
+      {wedding.address}
+    </p>
+  </div>
+
+  <div className="flex shrink-0 flex-col items-center gap-2">
+  <button
+    type="button"
+    onClick={() => setSelectedMapImage("/images/map-3f.png")}
+    className="h-20 w-24 overflow-hidden rounded-2xl bg-white shadow-sm"
+    aria-label="3층 약도 보기"
+  >
+    <img
+  src="/images/map-3f.png"
+  alt="3층 약도"
+  className="h-full w-full object-contain"
+/>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setSelectedMapImage("/images/map-3f.png")}
+    className="text-[11px] font-medium text-stone-400"
+  >
+    3층 약도 보기
+  </button>
+ </div>
+</div>
 
             <button
               onClick={() => copyText("address", wedding.address)}
@@ -1122,64 +1150,6 @@ const toggleMusic = async () => {
             ))}
           </div>
 
-        </Section>
-
-
-
-        <Section className="text-center">
-          <ImageBox
-            src={wedding.middleImage}
-            alt="중간 사진"
-            className="mb-8 h-[300px] w-full rounded-[2rem]"
-          />
-
-          <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-            D+DAY
-          </p>
-          <h2 className="font-serif text-2xl">우리가 함께한 시간</h2>
-          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-            <p className="text-sm text-stone-500">처음 만난 날</p>
-            <p className="mt-2 font-serif text-2xl">2026-02-18</p>
-            <div className="my-5 h-px bg-stone-100" />
-            <p className="text-sm text-stone-500">오늘까지 함께 걸어온 시간</p>
-            <p className="mt-2 text-2xl font-semibold">
-               {timeSinceFirstMet.days} 일 {timeSinceFirstMet.hours} 시간{" "}
-               {timeSinceFirstMet.minutes} 분 {timeSinceFirstMet.seconds} 초
-              </p>
-          </div>
-        </Section>
-
-        <Section>
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              GALLERY
-            </p>
-            <h2 className="font-serif text-2xl">갤러리</h2>
-          </div>
-
-          <div className="mt-8 grid grid-cols-2 gap-3">
-  {wedding.mainGallery.map((src, index) => {
-    const realIndex = wedding.gallery.findIndex((image) => image === src);
-
-    return (
-      <button
-        key={src}
-        type="button"
-        onClick={() => {
-          setSelectedImageIndex(realIndex >= 0 ? realIndex : index);
-          setShowGalleryControls(true);
-        }}
-        className="aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-sm"
-      >
-        <img
-          src={src}
-          alt={`갤러리 대표 이미지 ${index + 1}`}
-          className="h-full w-full object-cover"
-        />
-      </button>
-    );
-  })}
-</div>
         </Section>
 
         <Section className="bg-[#fbf8f3]">
@@ -1482,6 +1452,28 @@ const toggleMusic = async () => {
   </div>
 )}
 
+{selectedMapImage && (
+  <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-4">
+    <button
+      type="button"
+      onClick={() => setSelectedMapImage(null)}
+      className="absolute right-5 top-5 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+      aria-label="닫기"
+    >
+      ×
+    </button>
+
+    <div className="max-h-[85vh] max-w-full touch-pan-x touch-pan-y overflow-auto rounded-2xl bg-white p-2">
+      <img
+      src={selectedMapImage}
+      alt="약도 확대 보기"
+      className="max-w-none select-none"
+      style={{ width: "1000px" }}
+/>
+    </div>
+  </div>
+)}
+
 {showAccountModal && (
   <div
     className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 px-5"
@@ -1518,16 +1510,20 @@ const toggleMusic = async () => {
           ["신부 어머니", wedding.brideMotherAccount],
         ].map(([label, account]) => (
           <button
-            key={account}
-            type="button"
-            onClick={() => copyText(label, account)}
-            className="w-full rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
-          >
-            <p className="text-xs text-stone-400">{label}</p>
-            <p className="mt-1 font-medium leading-6 text-stone-700">
-              {account}
-            </p>
-          </button>
+  key={account}
+  type="button"
+  onClick={() => copyText(label, account)}
+  className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
+>
+  <div>
+    <p className="text-xs text-stone-400">{label}</p>
+    <p className="mt-1 font-medium leading-6 text-stone-700">
+      {account}
+    </p>
+  </div>
+
+  <Copy className="h-4 w-4 shrink-0 text-stone-400" />
+</button>
         ))}
       </div>
     </div>
