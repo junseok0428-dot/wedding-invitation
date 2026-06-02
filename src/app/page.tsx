@@ -1161,7 +1161,7 @@ const toggleMusic = async () => {
               {
                 icon: <Car className="h-5 w-5" />,
                 title: "자가용 이용 시",
-                text: "예식장 지하 주차장 이용 가능 · 2시간 무료",
+                text: "예식장 지하 주차장 이용 가능\n2시간 무료",
               },
             ].map((item) => (
               <div
