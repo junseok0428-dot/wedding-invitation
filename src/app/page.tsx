@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
   Volume2,
   VolumeX,
@@ -81,7 +82,7 @@ const wedding = {
   secondTime: "오후 3시",
   venue: "베니르홀",
   hall: "웨딩스퀘어 강변 3층",
-  address: "서울 광진구 광나루로56길 85 테크노마트 3층",
+  address: "서울 광진구 광나루로56길 85\n테크노마트",
   intro:
     //"저희 두 사람의 소중한 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
      "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n행복한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n진심 어린 축복으로 함께해 주시면\n감사하겠습니다.",
@@ -127,25 +128,25 @@ const timeline = [
   {
     date: "처음 만난 날",
     title: "서로의 일상에 들어온 순간",
-    text: "우연처럼 시작된 만남이 어느새 가장 편안한 하루가 되었습니다.",
+    text: "우연처럼 시작된 만남이\n어느새 가장 편안한 하루가 되었습니다.",
     image: "/images/gallery1.jpg",
   },
   {
     date: "함께한 시간",
     title: "조금씩 닮아간 우리",
-    text: "좋아하는 것과 웃는 순간들이 하나둘 비슷해졌습니다.",
+    text: "좋아하는 것과 웃는 순간들이\n하나둘 비슷해졌습니다.",
     image: "/images/gallery2.jpg",
   },
   {
     date: "프로포즈",
     title: "평범한 하루가 특별해진 날",
-    text: "익숙한 공간에서 우리의 약속이 시작되었습니다.",
+    text: "익숙한 공간에서\n우리의 약속이 시작되었습니다.",
     image: "/images/gallery3.jpg",
   },
   {
     date: wedding.date,
     title: "새로운 이야기가 시작되는 날",
-    text: "소중한 분들 앞에서 서로의 손을 꼭 잡고 함께 걸어가겠습니다.",
+    text: "소중한 분들 앞에서\n서로의 손을 꼭 잡고 함께 걸어가겠습니다.",
     image: "/images/gallery4.jpg",
   },
 ];
@@ -469,6 +470,7 @@ function GalleryImage({
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [showGuestbookModal, setShowGuestbookModal] = useState(false);
   const [selectedMapImage, setSelectedMapImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
   null
@@ -476,6 +478,7 @@ export default function MobileWeddingInvitation() {
 const [showGalleryControls, setShowGalleryControls] = useState(true);
 
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
+  const [allGuestbookEntries, setAllGuestbookEntries] = useState<GuestbookEntry[]>([]);
 const [guestName, setGuestName] = useState("");
 const [guestMessage, setGuestMessage] = useState("");
 
@@ -532,19 +535,31 @@ useEffect(() => {
   }
 
   const loadGuestbook = async () => {
-    const { data, error } = await supabase
-      .from("guestbook")
-      .select("id, name, message, created_at")
-      .order("created_at", { ascending: false })
-      .limit(3);
+  const { data, error } = await supabase
+    .from("guestbook")
+    .select("id, name, message, created_at")
+    .order("created_at", { ascending: false })
+    .limit(3);
 
-    if (error) {
-      console.error(error);
-      return;
-    }
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-    setGuestbookEntries(data || []);
-  };
+  setGuestbookEntries(data || []);
+
+  const { data: allData, error: allError } = await supabase
+    .from("guestbook")
+    .select("id, name, message, created_at")
+    .order("created_at", { ascending: false });
+
+  if (allError) {
+    console.error(allError);
+    return;
+  }
+
+  setAllGuestbookEntries(allData || []);
+};
 
   loadGuestbook();
 
@@ -567,6 +582,15 @@ useEffect(() => {
 
           return [newEntry, ...prev].slice(0, 3);
         });
+
+setAllGuestbookEntries((prev) => {
+  if (prev.some((entry) => entry.id === newEntry.id)) {
+    return prev;
+  }
+
+  return [newEntry, ...prev];
+});
+
       }
     )
     .subscribe((status) => {
@@ -850,7 +874,7 @@ const toggleMusic = async () => {
   SAT
 </p>
 <p className="mt-2 text-sm text-stone-600">
-  하루, 한 번의 소중한 시간으로 여러분을 초대합니다.
+  하루, 한 번의 소중한 시간으로<br />여러분을 초대합니다.
 </p>
 
           <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
@@ -884,14 +908,14 @@ const toggleMusic = async () => {
                 <p className="text-xs text-stone-500">예식</p>
                 <p className="mt-1 font-semibold">{wedding.time}</p>
                 <p className="mt-2 text-xs leading-5 text-stone-500">
-                  소중한 분들과 함께하는 두 사람의 새로운 시작
+                  소중한 분들과 <br />함께하는<br />두 사람의 새로운 시작
                 </p>
               </div>
               <div className="rounded-3xl bg-[#fbf8f3] p-4 flex flex-col items-center">
                 <p className="text-xs text-stone-500">식사</p>
                 <p className="mt-1 font-semibold">{wedding.secondTime}</p>
                 <p className="mt-2 text-xs leading-5 text-stone-500">
-                  식사와 함께 편안히 담소를 나누는 시간
+                  식사와 함께<br />편안히<br />담소를 나누는 시간
                 </p>
               </div>
             </div>
@@ -963,7 +987,7 @@ const toggleMusic = async () => {
                   <h3 className="mt-2 font-serif text-xl">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-6 text-stone-500">
+                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-500">
                     {item.text}
                   </p>
                 </div>
@@ -1014,16 +1038,21 @@ const toggleMusic = async () => {
         </Section>
 
         <Section className="text-center">
-          <ImageBox
-            src={wedding.middleImage}
-            alt="중간 사진"
-            className="mb-8 h-[300px] w-full rounded-[2rem]"
-          />
 
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
             D+DAY
           </p>
           <h2 className="font-serif text-2xl">우리가 함께한 시간</h2>
+          
+
+          <ImageBox
+            src={wedding.middleImage}
+            alt="중간 사진"
+            className="mt-8 mb-8 h-[300px] w-full rounded-[2rem]"
+          />
+
+
+
           <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
             <p className="text-sm text-stone-500">처음 만난 날</p>
             <p className="mt-2 font-serif text-2xl">2026-02-18</p>
@@ -1063,9 +1092,9 @@ const toggleMusic = async () => {
   <div className="min-w-0 flex-1">
     <p className="font-semibold">{wedding.venue}</p>
     <p className="text-sm text-stone-600">{wedding.hall}</p>
-    <p className="mt-2 text-sm leading-6 text-stone-500">
-      {wedding.address}
-    </p>
+    <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-500">
+  {wedding.address}
+</p>
   </div>
 
   <div className="flex shrink-0 flex-col items-center gap-2">
@@ -1127,7 +1156,7 @@ const toggleMusic = async () => {
               {
                 icon: <Train className="h-5 w-5" />,
                 title: "지하철 이용 시",
-                text: "강변역 1번 출구 맞은편 도보 3분",
+                text: "강변역 1번 출구 맞은편\n도보 3분",
               },
               {
                 icon: <Car className="h-5 w-5" />,
@@ -1270,6 +1299,17 @@ const toggleMusic = async () => {
       ))
     )}
   </div>
+
+{guestbookEntries.length > 0 && (
+  <button
+    type="button"
+    onClick={() => setShowGuestbookModal(true)}
+    className="mt-5 flex w-full items-center justify-center rounded-full border border-stone-200 bg-white px-5 py-4 text-sm font-semibold text-stone-600 shadow-sm"
+  >
+    방명록 전체보기
+  </button>
+)}
+
 </Section>
 
 <Section className="text-center">
@@ -1463,13 +1503,82 @@ const toggleMusic = async () => {
       ×
     </button>
 
-    <div className="max-h-[85vh] max-w-full touch-pan-x touch-pan-y overflow-auto rounded-2xl bg-white p-2">
-      <img
-      src={selectedMapImage}
-      alt="약도 확대 보기"
-      className="max-w-none select-none"
-      style={{ width: "1000px" }}
-/>
+    <div className="h-[85vh] w-full max-w-[430px] overflow-hidden rounded-2xl bg-white">
+      <TransformWrapper
+        initialScale={1}
+        minScale={1}
+        maxScale={4}
+        centerOnInit
+        doubleClick={{ disabled: true }}
+        wheel={{ disabled: true }}
+        panning={{ velocityDisabled: true }}
+      >
+        <TransformComponent
+          wrapperClass="!h-full !w-full"
+          contentClass="!h-full !w-full"
+        >
+          <img
+            src={selectedMapImage}
+            alt="약도 확대 보기"
+            className="h-full w-full object-contain"
+            draggable={false}
+          />
+        </TransformComponent>
+      </TransformWrapper>
+    </div>
+  </div>
+)}
+
+{showGuestbookModal && (
+  <div
+    className="fixed inset-0 z-[1000] bg-black/70 px-5 py-8"
+    onClick={() => setShowGuestbookModal(false)}
+  >
+    <div
+      className="mx-auto flex h-full max-w-[390px] flex-col rounded-[2rem] bg-[#fbf8f3] p-5 shadow-2xl"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <button
+        type="button"
+        onClick={() => setShowGuestbookModal(false)}
+        className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl text-stone-500 shadow-sm"
+        aria-label="닫기"
+      >
+        ×
+      </button>
+
+      <div className="text-center">
+        <p className="mb-3 text-xs tracking-[0.28em] text-stone-400">
+          GUESTBOOK
+        </p>
+        <h2 className="font-serif text-2xl">방명록 전체보기</h2>
+      </div>
+
+      <div className="mt-6 flex-1 space-y-3 overflow-y-auto pr-1">
+        {allGuestbookEntries.map((item) => (
+          <div
+            key={item.id}
+            className="rounded-[1.7rem] bg-white p-5 shadow-sm"
+          >
+            <p className="text-xs tracking-[0.22em] text-stone-400">
+              from.
+            </p>
+            <p className="mt-1 font-semibold">{item.name}</p>
+            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-600">
+              {item.message}
+            </p>
+            <p className="mt-3 text-xs text-stone-400">
+              {new Date(item.created_at).toLocaleString("ko-KR", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 )}
@@ -1502,29 +1611,41 @@ const toggleMusic = async () => {
 
       <div className="mt-6 space-y-4 text-left text-sm">
         {[
-          ["신랑", wedding.groomAccount],
-          ["신랑 아버지", wedding.groomFatherAccount],
-          ["신랑 어머니", wedding.groomMotherAccount],
-          ["신부", wedding.brideAccount],
-          ["신부 아버지", wedding.brideFatherAccount],
-          ["신부 어머니", wedding.brideMotherAccount],
-        ].map(([label, account]) => (
-          <button
-  key={account}
-  type="button"
-  onClick={() => copyText(label, account)}
-  className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
->
-  <div>
-    <p className="text-xs text-stone-400">{label}</p>
-    <p className="mt-1 font-medium leading-6 text-stone-700">
-      {account}
-    </p>
-  </div>
+  ["신랑 강준석", "국민", "750602-01-234482"],
+  ["신랑 아버지 강형진", "농협", "821113-56-085108"],
+  ["신랑 어머니 유숙희", "농협", "356-0695-5044-13"],
+  ["신부 윤선영", "국민", "539701-04-021122"],
+  ["신부 아버지 윤태열", "신한", "110-000-000000"],
+  ["신부 어머니 최희영", "하나", "000-000000-00000"],
+].map(([label, bank, account]) => (
+  <div
+    key={label}
+    className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
+  >
+    <div>
+      <p>
+  <span className="text-xs text-stone-700">
+    {label.split(" ").slice(0, -1).join(" ")}
+  </span>{" "}
+  <span className="text-sm font-bold text-stone-900">
+    {label.split(" ").slice(-1)}
+  </span>
+</p>
+      <p className="mt-1 font-medium leading-6 text-stone-700">
+        {bank} {account}
+      </p>
+    </div>
 
-  <Copy className="h-4 w-4 shrink-0 text-stone-400" />
-</button>
-        ))}
+    <button
+      type="button"
+      onClick={() => copyText(label, account)}
+      className="shrink-0 text-stone-400"
+      aria-label={`${label} 계좌번호 복사`}
+    >
+      <Copy className="h-4 w-4" />
+    </button>
+  </div>
+))}
       </div>
     </div>
   </div>
