@@ -1638,48 +1638,29 @@ const toggleMusic = async () => {
   ["신부 아버지 윤태열", "신한", "110-000-000000"],
   ["신부 어머니 최희영", "하나", "000-000000-00000"],
 ].map(([label, bank, account]) => (
-  <div
+  <button
     key={label}
+    type="button"
+    onClick={() => copyText(label, `${bank} ${account}`)}
     className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
   >
-    <div>
+    <div className="min-w-0">
       <p>
-  <span className="text-xs text-stone-700">
-    {label.split(" ").slice(0, -1).join(" ")}
-  </span>{" "}
-  <span className="text-sm font-bold text-stone-900">
-    {label.split(" ").slice(-1)}
-  </span>
-</p>
-      <p className="mt-1 font-medium leading-6 text-stone-700">
+        <span className="text-xs text-stone-400">
+          {label.split(" ").slice(0, -1).join(" ")}
+        </span>{" "}
+        <span className="text-sm font-bold text-stone-900">
+          {label.split(" ").slice(-1)}
+        </span>
+      </p>
+
+      <p className="mt-1 whitespace-nowrap text-sm font-medium text-stone-700">
         {bank} {account}
       </p>
     </div>
 
-    <button
-  key={label}
-  type="button"
-  onClick={() => copyText(label, `${bank} ${account}`)}
-  className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
->
-  <div>
-    <p>
-      <span className="text-xs text-stone-400">
-        {label.split(" ").slice(0, -1).join(" ")}
-      </span>{" "}
-      <span className="text-sm font-bold text-stone-900">
-        {label.split(" ").slice(-1)}
-      </span>
-    </p>
-
-    <p className="mt-1 font-medium leading-6 text-stone-700">
-      {bank} {account}
-    </p>
-  </div>
-
-  <Copy className="h-4 w-4 shrink-0 text-stone-400" />
-</button>
-  </div>
+    <Copy className="h-4 w-4 shrink-0 text-stone-400" />
+  </button>
 ))}
       </div>
     </div>
