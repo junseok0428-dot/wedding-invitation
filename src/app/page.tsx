@@ -123,6 +123,8 @@ const wedding = {
   ],
 };
 
+
+
 const aboutUs = [
   {
     role: "신랑",
@@ -489,6 +491,7 @@ function GalleryImage({
 
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
+  const [showAccountModal, setShowAccountModal] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
   null
 );
@@ -1299,6 +1302,24 @@ const toggleMusic = async () => {
   </div>
 </Section>
 
+<Section className="text-center">
+  <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+    ACCOUNT
+  </p>
+  <h2 className="font-serif text-2xl">마음 전하실 곳</h2>
+  <p className="mx-auto mt-4 max-w-[280px] text-sm leading-7 text-stone-500">
+    축하의 마음을 담아 축의금을 전달해보세요.
+  </p>
+
+  <button
+    type="button"
+    onClick={() => setShowAccountModal(true)}
+    className="mx-auto mt-7 flex items-center justify-center gap-2 rounded-full bg-stone-800 px-6 py-4 text-sm font-semibold text-white shadow-sm"
+  >
+    <Copy className="h-4 w-4" />
+    축의금 보내기
+  </button>
+</Section>
 
 <section className="relative min-h-screen overflow-hidden bg-stone-900">
     <div className="absolute inset-0"></div>
@@ -1458,6 +1479,58 @@ const toggleMusic = async () => {
   </div>
 </div>
     </motion.div>
+  </div>
+)}
+
+{showAccountModal && (
+  <div
+    className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 px-5"
+    onClick={() => setShowAccountModal(false)}
+  >
+    <div
+      className="w-full max-w-[390px] rounded-[2rem] bg-white p-6 text-center shadow-2xl"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <button
+        type="button"
+        onClick={() => setShowAccountModal(false)}
+        className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-xl text-stone-500"
+        aria-label="닫기"
+      >
+        ×
+      </button>
+
+      <p className="mb-3 text-xs tracking-[0.28em] text-stone-400">
+        ACCOUNT
+      </p>
+      <h2 className="font-serif text-2xl">마음 전하실 곳</h2>
+      <p className="mt-3 text-sm leading-6 text-stone-500">
+        계좌번호를 누르면 복사됩니다.
+      </p>
+
+      <div className="mt-6 space-y-4 text-left text-sm">
+        {[
+          ["신랑", wedding.groomAccount],
+          ["신랑 아버지", wedding.groomFatherAccount],
+          ["신랑 어머니", wedding.groomMotherAccount],
+          ["신부", wedding.brideAccount],
+          ["신부 아버지", wedding.brideFatherAccount],
+          ["신부 어머니", wedding.brideMotherAccount],
+        ].map(([label, account]) => (
+          <button
+            key={account}
+            type="button"
+            onClick={() => copyText(label, account)}
+            className="w-full rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
+          >
+            <p className="text-xs text-stone-400">{label}</p>
+            <p className="mt-1 font-medium leading-6 text-stone-700">
+              {account}
+            </p>
+          </button>
+        ))}
+      </div>
+    </div>
   </div>
 )}
 
