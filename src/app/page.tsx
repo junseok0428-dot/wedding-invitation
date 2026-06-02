@@ -535,13 +535,17 @@ useEffect(() => {
     showAccountModal ||
     showGuestbookModal;
 
-  if (!isAnyModalOpen) return;
+  const originalBodyOverflow = document.body.style.overflow;
+  const originalHtmlOverflow = document.documentElement.style.overflow;
 
-  const originalOverflow = document.body.style.overflow;
-  document.body.style.overflow = "hidden";
+  if (isAnyModalOpen) {
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+  }
 
   return () => {
-    document.body.style.overflow = originalOverflow;
+    document.body.style.overflow = originalBodyOverflow;
+    document.documentElement.style.overflow = originalHtmlOverflow;
   };
 }, [selectedImageIndex, selectedMapImage, showAccountModal, showGuestbookModal]);
 
@@ -1392,7 +1396,7 @@ const toggleMusic = async () => {
 
 {selectedImageIndex !== null && (
   <div
-    className="fixed inset-0 z-[999] flex items-center justify-center bg-black/90 px-4"
+    className="fixed inset-0 z-[999] flex items-center justify-center overscroll-contain bg-black/90 px-4"
     onClick={() => setShowGalleryControls((prev) => !prev)}
   >
     <button
@@ -1547,7 +1551,7 @@ const toggleMusic = async () => {
 
 {showGuestbookModal && (
   <div
-    className="fixed inset-0 z-[1000] bg-black/70 px-5 py-8"
+    className="fixed inset-0 z-[1000] overscroll-contain bg-black/70 px-5 py-8"
     onClick={() => setShowGuestbookModal(false)}
   >
     <div
@@ -1601,7 +1605,7 @@ const toggleMusic = async () => {
 
 {showAccountModal && (
   <div
-    className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 px-5"
+    className="fixed inset-0 z-[1000] flex items-center justify-center overscroll-contain bg-black/70 px-5"
     onClick={() => setShowAccountModal(false)}
   >
     <div
@@ -1653,13 +1657,28 @@ const toggleMusic = async () => {
     </div>
 
     <button
-      type="button"
-      onClick={() => copyText(label, account)}
-      className="shrink-0 text-stone-400"
-      aria-label={`${label} 계좌번호 복사`}
-    >
-      <Copy className="h-4 w-4" />
-    </button>
+  key={label}
+  type="button"
+  onClick={() => copyText(label, `${bank} ${account}`)}
+  className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
+>
+  <div>
+    <p>
+      <span className="text-xs text-stone-400">
+        {label.split(" ").slice(0, -1).join(" ")}
+      </span>{" "}
+      <span className="text-sm font-bold text-stone-900">
+        {label.split(" ").slice(-1)}
+      </span>
+    </p>
+
+    <p className="mt-1 font-medium leading-6 text-stone-700">
+      {bank} {account}
+    </p>
+  </div>
+
+  <Copy className="h-4 w-4 shrink-0 text-stone-400" />
+</button>
   </div>
 ))}
       </div>
