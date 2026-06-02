@@ -82,7 +82,7 @@ const wedding = {
   secondTime: "오후 3시",
   venue: "베니르홀",
   hall: "웨딩스퀘어 강변 3층",
-  address: "서울 광진구 광나루로56길 85\n테크노마트",
+  address: "서울 광진구 광나루로56길 85,\n테크노마트",
   intro:
     //"저희 두 사람의 소중한 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
      "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n행복한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n진심 어린 축복으로 함께해 주시면\n감사하겠습니다.",
@@ -1171,7 +1171,7 @@ const toggleMusic = async () => {
                 <div className="text-stone-500">{item.icon}</div>
                 <div>
                   <p className="font-semibold">{item.title}</p>
-                  <p className="mt-1 text-sm leading-6 text-stone-500">
+                  <p className="mt-1 whitespace-pre-line text-sm leading-6 text-stone-500">
                     {item.text}
                   </p>
                 </div>
