@@ -528,6 +528,22 @@ useEffect(() => {
   return () => clearInterval(timer);
 }, []);
 
+useEffect(() => {
+  const isAnyModalOpen =
+    selectedImageIndex !== null ||
+    selectedMapImage !== null ||
+    showAccountModal ||
+    showGuestbookModal;
+
+  if (!isAnyModalOpen) return;
+
+  const originalOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    document.body.style.overflow = originalOverflow;
+  };
+}, [selectedImageIndex, selectedMapImage, showAccountModal, showGuestbookModal]);
 
   useEffect(() => {
   if (!supabaseUrl || !supabaseAnonKey) {
