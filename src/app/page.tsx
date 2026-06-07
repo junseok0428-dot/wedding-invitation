@@ -1,5 +1,6 @@
 "use client";
 
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
@@ -79,7 +80,7 @@ const wedding = {
   weddingDateISO: "2027-01-30T15:10:00",
   firstMetDateISO: "2026-02-18T00:00:00",
   time: "오후 3시 10분",
-  secondTime: "오후 3시",
+  secondTime: "오후 2시 40분",
   venue: "베니르홀",
   hall: "웨딩스퀘어 강변 3층",
   address: "서울 광진구 광나루로56길 85,\n테크노마트",
@@ -708,21 +709,23 @@ const toggleMusic = async () => {
   }
 };
 
-  const shareInvitation = async () => {
+const shareInvitation = () => {
   const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
-  const imageUrl =
-    "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png";
+  const imageUrl = invitationUrl + "/images/og-image.png";
 
+  // Kakao SDK가 로드되지 않았을 경우 링크 복사 안내
   if (!window.Kakao) {
-    await navigator.clipboard.writeText(invitationUrl);
+    navigator.clipboard.writeText(invitationUrl);
     alert("카카오 공유 준비 중입니다. 링크를 복사했어요.");
     return;
   }
 
+  // Kakao SDK 초기화
   if (!window.Kakao.isInitialized()) {
     window.Kakao.init(KAKAO_JAVASCRIPT_KEY);
   }
 
+  // 공유
   window.Kakao.Share.sendDefault({
     objectType: "feed",
     content: {
@@ -886,16 +889,12 @@ const toggleMusic = async () => {
             WEDDING DAY
           </p>
 <h2 className="font-serif text-3xl">
-  {calendar.year}.{String(calendar.month).padStart(2, "0")}.30.
+  {calendar.year}. {String(calendar.month).padStart(2, "0")}. 30.
 
 </h2>
 
-<p className="mt-2 text-sm tracking-[0.25em] text-stone-400">
-  SAT
-</p>
-<p className="mt-2 text-sm text-stone-600">
-  하루, 한 번의 소중한 시간으로<br />여러분을 초대합니다.
-</p>
+
+
 
           <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
             
@@ -924,20 +923,8 @@ const toggleMusic = async () => {
             </div>
 
 <div className="mt-6 grid grid-cols-2 gap-3 text-center">
-              <div className="rounded-3xl bg-[#fbf8f3] p-4 flex flex-col items-center">
-                <p className="text-xs text-stone-500">예식</p>
-                <p className="mt-1 font-semibold">{wedding.time}</p>
-                <p className="mt-2 text-xs leading-5 text-stone-500">
-                  소중한 분들과 <br />함께하는<br />두 사람의 새로운 시작
-                </p>
-              </div>
-              <div className="rounded-3xl bg-[#fbf8f3] p-4 flex flex-col items-center">
-                <p className="text-xs text-stone-500">식사</p>
-                <p className="mt-1 font-semibold">{wedding.secondTime}</p>
-                <p className="mt-2 text-xs leading-5 text-stone-500">
-                  식사와 함께<br />편안히<br />담소를 나누는 시간
-                </p>
-              </div>
+              
+              
             </div>
           </div>
 
@@ -971,56 +958,6 @@ const toggleMusic = async () => {
 
         
 
-        <Section className="bg-[#fbf8f3]">
-
-
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              OUR TIMELINE
-            </p>
-            <h2 className="font-serif text-2xl">우리의 이야기</h2>
-            <p className="mt-3 text-sm text-stone-500">
-              처음 만난 순간부터 지금까지
-            </p>
-          </div>
-
-          <div className="mt-9 space-y-5">
-            {timeline.map((item, index) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: false }}
-                transition={{ delay: index * 0.08 }}
-                className="rounded-[2rem] bg-white p-4 shadow-sm"
-              >
-                <ImageBox
-                  src={item.image}
-                  alt={item.title}
-                  //our timeline 우리의 이야기 사진사이즈
-                  className="h-auto w-full rounded-[1.5rem]"
-                />
-                <div className="mt-4 text-center">
-                  <p className="text-xs tracking-[0.22em] text-stone-400">
-                    {item.date}
-                  </p>
-                  <h3 className="mt-2 font-serif text-xl">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-500">
-                    {item.text}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-        </Section>
-
-
-
-
-
 
 
 
@@ -1029,7 +966,7 @@ const toggleMusic = async () => {
             <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
               GALLERY
             </p>
-            <h2 className="font-serif text-2xl">갤러리</h2>
+
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-3">
@@ -1044,6 +981,7 @@ const toggleMusic = async () => {
           setSelectedImageIndex(realIndex >= 0 ? realIndex : index);
           setShowGalleryControls(true);
         }}
+        
         className="aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-sm"
       >
         <img
@@ -1057,33 +995,7 @@ const toggleMusic = async () => {
 </div>
         </Section>
 
-        <Section className="text-center">
 
-          <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-            D+DAY
-          </p>
-          <h2 className="font-serif text-2xl">우리가 함께한 시간</h2>
-          
-
-          <ImageBox
-            src={wedding.middleImage}
-            alt="중간 사진"
-            className="mt-8 mb-8 h-[300px] w-full rounded-[2rem]"
-          />
-
-
-
-          <div className="mt-6 rounded-[2rem] bg-white p-6 shadow-sm">
-            <p className="text-sm text-stone-500">처음 만난 날</p>
-            <p className="mt-2 font-serif text-2xl">2026-02-18</p>
-            <div className="my-5 h-px bg-stone-100" />
-            <p className="text-sm text-stone-500">오늘까지 함께 걸어온 시간</p>
-            <p className="mt-2 text-2xl font-semibold">
-               {timeSinceFirstMet.days} 일 {timeSinceFirstMet.hours} 시간{" "}
-               {timeSinceFirstMet.minutes} 분 {timeSinceFirstMet.seconds} 초
-              </p>
-          </div>
-        </Section>
 
         <Section className="bg-[#fbf8f3] text-center">
 
@@ -1174,15 +1086,21 @@ const toggleMusic = async () => {
           <div className="mt-5 space-y-3 text-left">
             {[
               {
-                icon: <Train className="h-5 w-5" />,
-                title: "지하철 이용 시",
-                text: "강변역 1번 출구 맞은편\n도보 3분",
+
+                title: "지하철",
+                text: "2호선 강변역 강변테크노마트 판매동 B1 연결\n",
               },
               {
-                icon: <Car className="h-5 w-5" />,
-                title: "자가용 이용 시",
-                text: "예식장 지하 주차장 이용 가능\n2시간 무료",
+
+                title: "버스",
+                text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11, 15,  93, 112-1, 2000-1, 3212\n",
               },
+              {
+
+                title: "자가용",
+                text: "강변테크노마트 지하주차장\n2시간 무료",
+              },
+
             ].map((item) => (
               <div
                 key={item.title}
@@ -1201,45 +1119,6 @@ const toggleMusic = async () => {
 
         </Section>
 
-        <Section className="bg-[#fbf8f3]">
-
-
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              INFORMATION
-            </p>
-            <h2 className="font-serif text-2xl">안내사항</h2>
-          </div>
-
-          <div className="mt-8 space-y-3">
-            {[
-              {
-                title: "예식 안내",
-                text: "예식 30분 전 여유 있게 도착해주시면 감사하겠습니다.",
-              },
-              {
-                title: "식사 안내",
-                text: "예식 후 피로연장에서 식사가 준비되어 있습니다.",
-              },
-              {
-                title: "주차 안내",
-                text: "예식장 지하 주차장을 이용하실 수 있습니다.",
-              },
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="rounded-[1.6rem] bg-white p-5 shadow-sm"
-              >
-                <p className="font-semibold">{item.title}</p>
-                <p className="mt-2 text-sm leading-6 text-stone-500">
-                  {item.text}
-                </p>
-              </div>
-            ))}
-          </div>
-
-
-        </Section>
 
         <Section>
   <div className="text-center">
@@ -1336,10 +1215,8 @@ const toggleMusic = async () => {
   <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
     ACCOUNT
   </p>
-  <h2 className="font-serif text-2xl">마음 전하실 곳</h2>
-  <p className="mx-auto mt-4 max-w-[280px] text-sm leading-7 text-stone-500">
-    축하의 마음을 담아 축의금을 전달해보세요.
-  </p>
+
+
 
   <button
     type="button"
@@ -1347,8 +1224,18 @@ const toggleMusic = async () => {
     className="mx-auto mt-7 flex items-center justify-center gap-2 rounded-full bg-stone-800 px-6 py-4 text-sm font-semibold text-white shadow-sm"
   >
     <Copy className="h-4 w-4" />
-    축의금 보내기
+    신랑측 계좌번호
   </button>
+
+    <button
+    type="button"
+    onClick={() => setShowAccountModal(true)}
+    className="mx-auto mt-7 flex items-center justify-center gap-2 rounded-full bg-stone-800 px-6 py-4 text-sm font-semibold text-white shadow-sm"
+  >
+    <Copy className="h-4 w-4" />
+    신부측 계좌번호
+  </button>
+
 </Section>
 
 <section className="relative min-h-screen overflow-hidden bg-stone-900">
@@ -1384,13 +1271,13 @@ const toggleMusic = async () => {
   </div>
 
     <button
-      type="button"
-      onClick={shareInvitation}
-      className="mt-12 flex items-center justify-center gap-2 rounded-full bg-[#f7dd4a] px-7 py-4 text-sm font-semibold text-stone-900 shadow-lg"
-    >
-      <MessageCircle className="h-4 w-4" />
-      카카오톡으로 공유하기
-    </button>
+  type="button"
+  onClick={shareInvitation}
+  className="mt-10 flex items-center justify-center gap-2 rounded-full bg-[#f7dd4a] px-6 py-4 text-sm font-semibold text-stone-900"
+>
+  <MessageCircle className="h-4 w-4" />
+  카카오톡으로 공유하기
+</button>
   </div>
 </section>
 

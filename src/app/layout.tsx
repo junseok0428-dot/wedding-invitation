@@ -16,11 +16,11 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://wedding-invitation-gamma-olive.vercel.app"),
-  title: "강준석♡윤선영 모바일 청첩장",
-  description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
+  title: "강준석♡윤선영의 결혼식에 초대합니다",
+  description: "2027년 01월 30일 PM 03시 10분",
   openGraph: {
-    title: "강준석♡윤선영 모바일 청첩장",
-    description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
+    title: "강준석♡윤선영의 결혼식에 초대합니다",
+    description: "2027년 01월 30일 PM 03시 10분",
     url: "https://wedding-invitation-gamma-olive.vercel.app",
     siteName: "Wedding Invitation",
     images: [
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     url: "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png",
     width: 1200,
     height: 630,
-    alt: "강준석♡윤선영 모바일 청첩장",
+    alt: "강준석♡윤선영의 결혼식에 초대합니다",
   },
 ],
     locale: "ko_KR",
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "강준석♡윤선영 모바일 청첩장",
-    description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
+    title: "강준석♡윤선영의 결혼식에 초대합니다",
+    description: "2027년 01월 30일 PM 03시 10분",
     images: [
   "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png",
 ],
