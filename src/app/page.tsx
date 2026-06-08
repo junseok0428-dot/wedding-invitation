@@ -32,37 +32,6 @@ import {
 
 } from "lucide-react";
 
-declare global {
-  interface Window {
-    Kakao?: {
-      init: (key: string) => void;
-      isInitialized: () => boolean;
-      Share: {
-        sendDefault: (options: {
-          objectType: "feed";
-          content: {
-            title: string;
-            description: string;
-            imageUrl: string;
-            link: {
-              mobileWebUrl: string;
-              webUrl: string;
-            };
-          };
-          buttons: {
-            title: string;
-            link: {
-              mobileWebUrl: string;
-              webUrl: string;
-            };
-          }[];
-        }) => void;
-      };
-    };
-
-    kakao?: any;
-  }
-}
 
 type GuestbookEntry = {
   id: number;
@@ -836,7 +805,7 @@ useEffect(() => {
 }, []);
 
 const shareInvitation = () => {
-  const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
+  const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
   const imageUrl = invitationUrl + "/images/og-image.png";
 
   // kakao SDK가 로드되지 않았을 경우 링크 복사 안내
@@ -876,7 +845,7 @@ const shareInvitation = () => {
 };
 
 const copyInvitationUrl = async () => {
-  const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
+  const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
 
   try {
     await navigator.clipboard.writeText(invitationUrl);
