@@ -1215,131 +1215,112 @@ const copyInvitationUrl = async () => {
 
 
 
-        <Section className="bg-[#fbf8f3] text-center">
+<Section className="bg-[#fbf8f3] text-center">
+  <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+    LOCATION
+  </p>
 
-          <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-            LOCATION
-          </p>
-
-          <div className="mt-6 overflow-hidden rounded-[1.5rem] bg-white shadow-sm">
-  <div ref={kakaoMapRef} className="h-[320px] w-full" />
-</div>
-
-<button
-  type="button"
-  onClick={() =>
-  window.open(
-    "https://map.kakao.com/?urlX=521142.99999999936&urlY=1121183.0000000005&urlLevel=3&itemId=23397688&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4%20%EA%B0%95%EB%B3%80&srcid=23397688&map_type=TYPE_MAP",
-    "_blank"
-  )
-}
-  className="mt-3 w-full bg-white px-5 py-1 text-sm font-semibold text-stone-400"
->
-  지도를 자세히 보려면 여기를 눌러주세요
-</button>
-
-
-          <div className="mt-7 rounded-[2rem] bg-white p-6 text-left shadow-sm">
-            <div className="mb-4 flex items-start gap-3">
-  <MapPin className="mt-1 h-5 w-5 shrink-0 text-stone-500" />
-
-  <div className="min-w-0 flex-1">
-    <p className="font-semibold">{wedding.venue}</p>
-    <p className="text-sm text-stone-600">{wedding.hall}</p>
-    <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-500">
-  {wedding.address}
-</p>
+  <div className="mt-6 overflow-hidden rounded-[1.5rem] bg-white shadow-sm">
+    <div ref={kakaoMapRef} className="h-[320px] w-full" />
   </div>
 
-  <div className="flex shrink-0 flex-col items-center gap-2">
-  <button
-    type="button"
-    onClick={() => setSelectedMapImage("/images/map-3f.png")}
-    className="h-20 w-24 overflow-hidden rounded-2xl bg-white shadow-sm"
-    aria-label="3층 약도 보기"
+ <div className="mt-3 grid grid-cols-4 gap-2">
+  <a
+    href={wedding.naverMapUrl}
+    className="rounded-2xl bg-white px-2 py-3 text-center text-xs font-semibold text-stone-600 shadow-sm"
   >
-    <img
-  src="/images/map-3f.png"
-  alt="3층 약도"
-  className="h-full w-full object-contain"
-/>
-  </button>
+    네이버
+  </a>
+
+  <a
+    href={wedding.kakaoMapUrl}
+    className="rounded-2xl bg-white px-2 py-3 text-center text-xs font-semibold text-stone-600 shadow-sm"
+  >
+    카카오
+  </a>
+
+  <a
+    href={wedding.googleMapUrl}
+    className="rounded-2xl bg-white px-2 py-3 text-center text-xs font-semibold text-stone-600 shadow-sm"
+  >
+    구글
+  </a>
 
   <button
     type="button"
-    onClick={() => setSelectedMapImage("/images/map-3f.png")}
-    className="text-[11px] font-medium text-stone-400"
+    onClick={() => copyText("address", wedding.address)}
+    className="rounded-2xl bg-white px-2 py-3 text-center text-xs font-semibold text-stone-600 shadow-sm"
   >
-    3층 약도 보기
+    주소복사
   </button>
- </div>
 </div>
 
-            <button
-              onClick={() => copyText("address", wedding.address)}
-              className="mb-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-medium text-stone-700"
-            >
-              <Copy className="h-4 w-4" />
-              주소 복사
-            </button>
+  <div className="mt-7 rounded-[2rem] bg-white p-6 text-left shadow-sm">
+    <div className="flex items-start gap-3">
+      <MapPin className="mt-1 h-5 w-5 shrink-0 text-stone-500" />
 
-            <div className="grid grid-cols-3 gap-2">
-              <a
-                href={wedding.naverMapUrl}
-                className="rounded-2xl bg-stone-900 px-3 py-3 text-center text-xs font-semibold text-white"
-              >
-                네이버
-              </a>
-              <a
-                href={wedding.kakaoMapUrl}
-                className="rounded-2xl bg-[#f7dd4a] px-3 py-3 text-center text-xs font-semibold text-stone-900"
-              >
-                카카오
-              </a>
-              <a
-                href={wedding.googleMapUrl}
-                className="rounded-2xl bg-stone-100 px-3 py-3 text-center text-xs font-semibold text-stone-700"
-              >
-                구글
-              </a>
-            </div>
-          </div>
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold">{wedding.venue}</p>
+        <p className="text-sm text-stone-600">{wedding.hall}</p>
+        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-500">
+          {wedding.address}
+        </p>
+      </div>
 
-          <div className="mt-5 space-y-3 text-left">
-            {[
-              {
+      <div className="flex shrink-0 flex-col items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setSelectedMapImage("/images/map-3f.png")}
+          className="h-20 w-24 overflow-hidden rounded-2xl bg-white shadow-sm"
+          aria-label="3층 약도 보기"
+        >
+          <img
+            src="/images/map-3f.png"
+            alt="3층 약도"
+            className="h-full w-full object-contain"
+          />
+        </button>
 
-                title: "지하철",
-                text: "2호선 강변역 강변테크노마트 판매동 B1 연결\n",
-              },
-              {
+        <button
+          type="button"
+          onClick={() => setSelectedMapImage("/images/map-3f.png")}
+          className="text-[11px] font-medium text-stone-400"
+        >
+          3층 약도 보기
+        </button>
+      </div>
+    </div>
+  </div>
 
-                title: "버스",
-                text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11, 15,  93, 112-1, 2000-1, 3212\n",
-              },
-              {
-
-                title: "자가용",
-                text: "강변테크노마트 지하주차장\n2시간 무료",
-              },
-
-            ].map((item) => (
-              <div
-                key={item.title}
-                className="flex gap-4 rounded-[1.6rem] bg-white p-5 shadow-sm"
-              >
-
-                <div>
-                  <p className="font-semibold">{item.title}</p>
-                  <p className="mt-1 whitespace-pre-line text-sm leading-6 text-stone-500">
-                    {item.text}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-        </Section>
+<div className="mt-5 rounded-[2rem] bg-white p-6 text-left shadow-sm">
+  {[
+    {
+      title: "지하철",
+      text: "2호선 강변역 강변테크노마트 판매동 B1 연결",
+    },
+    {
+      title: "버스",
+      text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11, 15, 93, 112-1, 2000-1, 3212",
+    },
+    {
+      title: "자가용",
+      text: "강변테크노마트 지하주차장\n2시간 무료",
+    },
+  ].map((item, index) => (
+    <div
+      key={item.title}
+      className={`${
+        index !== 0 ? "border-t border-stone-100 pt-4" : ""
+      } ${index !== 2 ? "pb-4" : ""}`}
+    >
+      <p className="font-semibold">{item.title}</p>
+      <p className="mt-1 whitespace-pre-line text-sm leading-6 text-stone-500">
+        {item.text}
+      </p>
+    </div>
+  ))}
+</div>
+</Section>
 
 
         <Section>
