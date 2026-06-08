@@ -40,7 +40,8 @@ type GuestbookEntry = {
   created_at: string;
 };
 
-const KAKAO_JAVASCRIPT_KEY = "1c15ce720654ad417dcb38d89a2415b8";
+const KAKAO_JAVASCRIPT_KEY =
+  process.env.NEXT_PUBLIC_KAKAO_JS_KEY || "";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";

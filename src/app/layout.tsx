@@ -15,18 +15,18 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://wedding-invitation-gamma-olive.vercel.app"),
+  metadataBase: new URL("https://junseok-seonyoung-wedding.vercel.app"),
   title: "강준석♡윤선영의 결혼식에 초대합니다",
   description: "2027년 01월 30일 PM 03시 10분",
   openGraph: {
     title: "강준석♡윤선영의 결혼식에 초대합니다",
     description: "2027년 01월 30일 PM 03시 10분",
-    url: "https://wedding-invitation-gamma-olive.vercel.app",
+    url: "https://junseok-seonyoung-wedding.vercel.app",
     siteName: "Wedding Invitation",
     images: [
   {
-    url: "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png",
-    width: 1200,
+    url: "https://junseok-seonyoung-wedding.vercel.app/images/og-image.png",
+    width: 2000,
     height: 630,
     alt: "강준석♡윤선영의 결혼식에 초대합니다",
   },
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: "강준석♡윤선영의 결혼식에 초대합니다",
     description: "2027년 01월 30일 PM 03시 10분",
     images: [
-  "https://wedding-invitation-gamma-olive.vercel.app/images/og-image.png",
+  "https://junseok-seonyoung-wedding.vercel.app/images/og-image.png",
 ],
   },
 };
