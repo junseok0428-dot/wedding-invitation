@@ -21,6 +21,9 @@ import {
   CalendarDays,
   MessageCircle,
   Camera,
+  ChevronLeft,
+  ChevronRight,
+
 
   Car,
   Train,
@@ -56,6 +59,8 @@ declare global {
         }) => void;
       };
     };
+
+    kakao?: any;
   }
 }
 
@@ -99,8 +104,8 @@ const wedding = {
   brideFatherAccount: "신한 110-000-000000 윤태열",
   brideMotherAccount: "하나 000-000000-00000 최희영",
   naverMapUrl: "https://naver.me/FdCx2LFq",
-  kakaoMapUrl: "https://place.map.kakao.com/23397688",
-  googleMapUrl: "https://share.google/Ajz4IFUghVclkvLRt",
+  kakaoMapUrl: "https://map.kakao.com/?urlX=521142.99999999936&urlY=1121183.0000000005&urlLevel=3&itemId=23397688&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4%20%EA%B0%95%EB%B3%80&srcid=23397688&map_type=TYPE_MAP",
+  googleMapUrl: "https://www.google.com/maps?sca_esv=1dc58019ac9a4f8a&output=search&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4&source=lnms&fbs=ADc_l-bD_nyrjATWBKup7flJ4rea5XFXsPHwMjGsTekJ1HCohBAQ3Hh19DqzlO7wr7YUgTdahuWH974VvSrJs4RQ62KmPakfWcC3PxowH7Qj6U35JfBSoRBAl27CH7o7NicNO6jPYwrbO3-KLu-p6GaC8OMuIWRlspfJasw6AD_0JlwcO_ezT0l8LoAUnAiDGYZhqbvO4u-0rYioEum0W6761pE9KqBTX_ru_NEiTXDKeLnCjlz0JnA&entry=mc&ved=1t:200715&ictx=111",
   heroImage: "/images/main.jpg",
   middleImage: "/images/gallery2.jpg",
   endingImage: "/images/gallery5.jpg",
@@ -152,24 +157,13 @@ const timeline = [
   },
 ];
 
-
-const guestbook = [
-  {
-    name: "친구",
-    text: "두 사람의 새로운 시작을 진심으로 축하해요. 늘 지금처럼 예쁘게 사랑하세요.",
-    date: "2026-05-24 12:30",
-  },
-  {
-    name: "동료",
-    text: "서로의 가장 든든한 편이 되어 행복한 날들을 만들어가길 바랍니다.",
-    date: "2026-05-24 12:31",
-  },
-  {
-    name: "가족",
-    text: "오늘의 마음처럼 따뜻하고 단단한 가정을 이루길 축복합니다.",
-    date: "2026-05-24 12:32",
-  },
-];
+const petals = Array.from({ length: 12 }, (_, index) => ({
+  id: index,
+  left: Math.random() * 100,
+  delay: Math.random() * 5,
+  duration: 7 + Math.random() * 6,
+  size: 8 + Math.random() * 8,
+}));
 
 function daysUntilWedding() {
   const weddingDate = new Date(wedding.weddingDateISO);
@@ -362,6 +356,105 @@ function Divider() {
   return <div className="mx-auto my-4 h-px w-16 bg-stone-300" />;
 }
 
+function WinterFlakes() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const flakes = useMemo(
+    () =>
+      Array.from({ length: 14 }, (_, index) => ({
+        id: index,
+        left: Math.random() * 100,
+        size: 5 + Math.random() * 9,
+        opacity: 0.35 + Math.random() * 0.45,
+        delay: Math.random() * 8,
+        duration: 8 + Math.random() * 10,
+        drift1: -18 + Math.random() * 36,
+        drift2: -28 + Math.random() * 56,
+        drift3: -20 + Math.random() * 40,
+        blur: Math.random() > 0.7 ? 1.2 : 0,
+        scale: 0.85 + Math.random() * 0.5,
+      })),
+    []
+  );
+
+  if (!mounted) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+      {flakes.map((flake) => (
+        <motion.span
+          key={flake.id}
+          initial={{
+            y: -40,
+            x: 0,
+            opacity: 0,
+            scale: flake.scale,
+          }}
+          animate={{
+            y: "110vh",
+            x: [0, flake.drift1, flake.drift2, flake.drift3],
+            opacity: [0, flake.opacity, flake.opacity, 0],
+            rotate: [0, 20, -15, 10],
+          }}
+          transition={{
+            duration: flake.duration,
+            delay: flake.delay,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{
+            left: `${flake.left}%`,
+            width: `${flake.size}px`,
+            height: `${flake.size}px`,
+            filter: `blur(${flake.blur}px)`,
+          }}
+          className="absolute top-0 rounded-full bg-[#fffaf3]/80"
+        />
+      ))}
+    </div>
+  );
+}
+
+function FallingPetals() {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+      {petals.map((petal) => (
+        <motion.span
+          key={petal.id}
+          initial={{
+            y: -40,
+            x: 0,
+            rotate: 0,
+            opacity: 0,
+          }}
+          animate={{
+            y: "110vh",
+            x: [0, 20, -15, 25, -10],
+            rotate: [0, 80, 160, 240, 360],
+            opacity: [0, 0.75, 0.75, 0],
+          }}
+          transition={{
+            duration: petal.duration,
+            delay: petal.delay,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          style={{
+            left: `${petal.left}%`,
+            width: `${petal.size}px`,
+            height: `${petal.size * 0.75}px`,
+          }}
+          className="absolute top-0 rounded-[100%_0_100%_0] bg-[#f3b6b8]/80"
+        />
+      ))}
+    </div>
+  );
+}
+
 function TornEdge({ top = false }: { top?: boolean }) {
   return (
     <div
@@ -471,11 +564,15 @@ function GalleryImage({
 export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
+  const [openAccountSide, setOpenAccountSide] = useState<"groom" | "bride" | null>(null);
   const [showGuestbookModal, setShowGuestbookModal] = useState(false);
   const [selectedMapImage, setSelectedMapImage] = useState<string | null>(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
-  null
-);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+const [galleryIndex, setGalleryIndex] = useState(0);
+
+const touchStartX = useRef<number | null>(null);
+const touchEndX = useRef<number | null>(null);
+const [showGalleryHint, setShowGalleryHint] = useState(true);
 const [showGalleryControls, setShowGalleryControls] = useState(true);
 
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
@@ -484,6 +581,7 @@ const [guestName, setGuestName] = useState("");
 const [guestMessage, setGuestMessage] = useState("");
 
 const audioRef = useRef<HTMLAudioElement | null>(null);
+const kakaoMapRef = useRef<HTMLDivElement | null>(null);
 const [isMusicOn, setIsMusicOn] = useState(false);
 
 const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
@@ -709,18 +807,46 @@ const toggleMusic = async () => {
   }
 };
 
+useEffect(() => {
+  const mapKey = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
+  if (!kakaoMapRef.current || !mapKey) return;
+
+  const loadMap = () => {
+    const kakao = window.kakao;
+    if (!kakao?.maps || !kakaoMapRef.current) return;
+
+    kakao.maps.load(() => {
+      const position = new kakao.maps.LatLng(37.5355, 127.0957);
+
+      const map = new kakao.maps.Map(kakaoMapRef.current, {
+        center: position,
+        level: 3,
+      });
+
+      const marker = new kakao.maps.Marker({ position });
+      marker.setMap(map);
+    });
+  };
+
+  const script = document.createElement("script");
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${mapKey}&autoload=false`;
+  script.async = true;
+  script.onload = loadMap;
+  document.head.appendChild(script);
+}, []);
+
 const shareInvitation = () => {
   const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
   const imageUrl = invitationUrl + "/images/og-image.png";
 
-  // Kakao SDK가 로드되지 않았을 경우 링크 복사 안내
+  // kakao SDK가 로드되지 않았을 경우 링크 복사 안내
   if (!window.Kakao) {
     navigator.clipboard.writeText(invitationUrl);
     alert("카카오 공유 준비 중입니다. 링크를 복사했어요.");
     return;
   }
 
-  // Kakao SDK 초기화
+  // kakao SDK 초기화
   if (!window.Kakao.isInitialized()) {
     window.Kakao.init(KAKAO_JAVASCRIPT_KEY);
   }
@@ -749,6 +875,18 @@ const shareInvitation = () => {
   });
 };
 
+const copyInvitationUrl = async () => {
+  const invitationUrl = "https://wedding-invitation-gamma-olive.vercel.app";
+
+  try {
+    await navigator.clipboard.writeText(invitationUrl);
+    setCopied("invitationUrl");
+    setTimeout(() => setCopied(""), 1600);
+  } catch {
+    alert("주소 복사에 실패했어요. 주소창의 링크를 직접 복사해주세요.");
+  }
+};
+
   return (
     <div className="min-h-screen bg-[#e8dfd2] text-stone-800">
 
@@ -773,6 +911,7 @@ const shareInvitation = () => {
 
       <main className="mx-auto min-h-screen max-w-[430px] overflow-hidden bg-[#fbf8f3] shadow-2xl">
         <section className="relative min-h-screen overflow-hidden bg-stone-900">
+          <WinterFlakes />
           <div className="absolute inset-0">
             <ImageBox
               src={wedding.heroImage}
@@ -899,28 +1038,54 @@ const shareInvitation = () => {
           <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
             
 
-            <div className="mb-3 grid grid-cols-7 text-center text-xs text-stone-400">
-              {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
-                <span key={day}>{day}</span>
-              ))}
-            </div>
+           <div className="mb-3 grid grid-cols-7 text-center text-xs">
+  {["일", "월", "화", "수", "목", "금", "토"].map((day, index) => (
+    <span
+      key={day}
+      className={
+        index === 0
+          ? "text-red-400"
+          : index === 6
+            ? "text-blue-400"
+            : "text-stone-400"
+      }
+    >
+      {day}
+    </span>
+  ))}
+</div>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-sm">
-              {calendar.days.map((item, index) => (
-                <div
-                  key={`${item.day}-${index}`}
-                  className={`flex aspect-square items-center justify-center rounded-full ${
-                    item.isWeddingDay
-                      ? "bg-stone-900 font-semibold text-white"
-                      : item.currentMonth
-                        ? "text-stone-700"
-                        : "text-stone-300"
-                  }`}
-                >
-                  {item.day}
-                </div>
-              ))}
-            </div>
+<div className="grid grid-cols-7 gap-1 text-center text-sm">
+  {calendar.days.map((item, index) => {
+    const dayOfWeek = index % 7;
+    const isSunday = dayOfWeek === 0;
+    const isSaturday = dayOfWeek === 6;
+
+    return (
+      <div
+        key={`${item.day}-${index}`}
+        className={`relative flex aspect-square items-center justify-center rounded-full ${
+          item.isWeddingDay
+                 ? "bg-[#d8b3a2] font-semibold text-white shadow-[0_4px_20px_rgba(160,120,100,0.38)]"
+            : item.currentMonth
+              ? isSunday
+                ? "text-red-400"
+                : isSaturday
+                  ? "text-blue-400"
+                  : "text-stone-700"
+              : isSunday
+                ? "text-red-200"
+                : isSaturday
+                  ? "text-blue-200"
+                  : "text-stone-300"
+        }`}
+      >
+        
+        {item.day}
+      </div>
+    );
+  })}
+</div>
 
 <div className="mt-6 grid grid-cols-2 gap-3 text-center">
               
@@ -969,29 +1134,112 @@ const shareInvitation = () => {
 
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-3">
-  {wedding.mainGallery.map((src, index) => {
-    const realIndex = wedding.gallery.findIndex((image) => image === src);
+         <div className="mt-8">
+  <div
+  className="relative overflow-hidden rounded-[1.8rem] bg-stone-100 shadow-sm"
+  onTouchStart={(event) => {
+    touchStartX.current = event.touches[0].clientX;
+  }}
+  onTouchMove={(event) => {
+    touchEndX.current = event.touches[0].clientX;
+  }}
+  onTouchEnd={() => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
 
-    return (
-      <button
-        key={src}
-        type="button"
-        onClick={() => {
-          setSelectedImageIndex(realIndex >= 0 ? realIndex : index);
-          setShowGalleryControls(true);
-        }}
-        
-        className="aspect-[3/4] overflow-hidden rounded-2xl bg-stone-100 shadow-sm"
-      >
-        <img
-          src={src}
-          alt={`갤러리 대표 이미지 ${index + 1}`}
-          className="h-full w-full object-cover"
-        />
-      </button>
-    );
-  })}
+    const distance = touchStartX.current - touchEndX.current;
+
+    if (Math.abs(distance) > 50) {
+      if (distance > 0) {
+
+  setGalleryIndex((prev) =>
+    prev === wedding.gallery.length - 1 ? 0 : prev + 1
+  );
+} else {
+
+  setGalleryIndex((prev) =>
+    prev === 0 ? wedding.gallery.length - 1 : prev - 1
+  );
+}
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  }}
+>
+{showGalleryHint && galleryIndex === 0 && (
+  <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-[11px] text-white backdrop-blur">
+    <motion.span
+      animate={{ x: [-3, 3, -3] }}
+      transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+      className="text-base"
+    >
+      ‹
+    </motion.span>
+
+    <span className="leading-4">
+      밀어서 더 많은
+      <br />
+      이미지 보기
+    </span>
+
+    <motion.span
+      animate={{ x: [3, -3, 3] }}
+      transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+      className="text-base"
+    >
+      ›
+    </motion.span>
+  </div>
+)}
+
+    <motion.div
+  className="flex h-[520px]"
+  animate={{ x: `-${galleryIndex * 100}%` }}
+  transition={{ duration: 0.35, ease: "easeOut" }}
+>
+  {wedding.gallery.map((src, index) => (
+    <img
+      key={src}
+      src={src}
+      alt={`갤러리 이미지 ${index + 1}`}
+      draggable={false}
+      className="h-[520px] w-full shrink-0 select-none object-cover touch-pan-y"
+    />
+  ))}
+</motion.div>
+
+    <button
+      type="button"
+      onClick={() => {
+  setShowGalleryHint(false);
+  setGalleryIndex((prev) =>
+    prev === 0 ? wedding.gallery.length - 1 : prev - 1
+  );
+}}
+      className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center justify-center text-white drop-shadow-md"
+      aria-label="이전 사진"
+    >
+      <ChevronLeft className="h-8 w-8 stroke-[1.5]" />
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+  setShowGalleryHint(false);
+  setGalleryIndex((prev) =>
+    prev === wedding.gallery.length - 1 ? 0 : prev + 1
+  );
+}}
+      className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center justify-center text-white drop-shadow-md"
+      aria-label="다음 사진"
+    >
+      <ChevronRight className="h-8 w-8 stroke-[1.5]" />
+    </button>
+  </div>
+
+  <p className="mt-5 text-center text-sm text-stone-500">
+    {galleryIndex + 1} / {wedding.gallery.length}
+  </p>
 </div>
         </Section>
 
@@ -1002,20 +1250,24 @@ const shareInvitation = () => {
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
             LOCATION
           </p>
-          <h2 className="font-serif text-2xl">오시는 길</h2>
 
-          <button
+          <div className="mt-6 overflow-hidden rounded-[1.5rem] bg-white shadow-sm">
+  <div ref={kakaoMapRef} className="h-[320px] w-full" />
+</div>
+
+<button
   type="button"
-  onClick={() => setSelectedMapImage("/images/map-weddinghall.png")}
-  className="mt-6 overflow-hidden rounded-[1.5rem] bg-white shadow-sm"
+  onClick={() =>
+  window.open(
+    "https://map.kakao.com/?urlX=521142.99999999936&urlY=1121183.0000000005&urlLevel=3&itemId=23397688&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4%20%EA%B0%95%EB%B3%80&srcid=23397688&map_type=TYPE_MAP",
+    "_blank"
+  )
+}
+  className="mt-3 w-full bg-white px-5 py-1 text-sm font-semibold text-stone-400"
 >
-  <ImageBox
-    src="/images/map-weddinghall.png"
-    alt="웨딩스퀘어 강변점 약도"
-    contain
-    className="h-auto w-full"
-  />
+  지도를 자세히 보려면 여기를 눌러주세요
 </button>
+
 
           <div className="mt-7 rounded-[2rem] bg-white p-6 text-left shadow-sm">
             <div className="mb-4 flex items-start gap-3">
@@ -1106,7 +1358,7 @@ const shareInvitation = () => {
                 key={item.title}
                 className="flex gap-4 rounded-[1.6rem] bg-white p-5 shadow-sm"
               >
-                <div className="text-stone-500">{item.icon}</div>
+
                 <div>
                   <p className="font-semibold">{item.title}</p>
                   <p className="mt-1 whitespace-pre-line text-sm leading-6 text-stone-500">
@@ -1124,10 +1376,6 @@ const shareInvitation = () => {
   <div className="text-center">
     <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
       GUESTBOOK
-    </p>
-    <h2 className="font-serif text-2xl">방명록</h2>
-    <p className="mt-3 text-sm text-stone-500">
-      두 사람에게 따뜻한 축하 인사를 남겨주세요.
     </p>
   </div>
 
@@ -1216,26 +1464,77 @@ const shareInvitation = () => {
     ACCOUNT
   </p>
 
+  <div className="mt-8 space-y-3 text-left">
+    {[
+      {
+        id: "groom",
+        title: "신랑측 계좌번호",
+        accounts: [
+          ["신랑 강준석", "국민", "750602-01-234482"],
+          ["신랑 아버지 강형진", "농협", "821113-56-085108"],
+          ["신랑 어머니 유숙희", "농협", "356-0695-5044-13"],
+        ],
+      },
+      {
+        id: "bride",
+        title: "신부측 계좌번호",
+        accounts: [
+          ["신부 윤선영", "국민", "539701-04-021122"],
+          ["신부 아버지 윤태열", "신한", "110-000-000000"],
+          ["신부 어머니 최희영", "하나", "000-000000-00000"],
+        ],
+      },
+    ].map((group) => (
+      <div key={group.id} className="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <button
+          type="button"
+          onClick={() =>
+            setOpenAccountSide(
+              openAccountSide === group.id ? null : (group.id as "groom" | "bride")
+            )
+          }
+          className="relative flex w-full items-center justify-center px-5 py-4 text-center"
+        >
+          <span className="font-semibold text-stone-700">{group.title}</span>
+          <ChevronDown
+  className={`absolute right-5 h-4 w-4 text-stone-500 transition-transform ${
+    openAccountSide === group.id ? "rotate-180" : ""
+  }`}
+/>
+        </button>
 
+        {openAccountSide === group.id && (
+          <div className="space-y-2 border-t border-stone-100 px-4 pb-4 pt-3">
+            {group.accounts.map(([label, bank, account]) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => copyText(label, `${bank} ${account}`)}
+                className="flex w-full items-center justify-between gap-3 rounded-xl bg-[#fbf8f3] px-3 py-3 text-left"
+              >
+                <div className="min-w-0">
+                  <p>
+                    <span className="text-xs text-stone-400">
+                      {label.split(" ").slice(0, -1).join(" ")}
+                    </span>{" "}
+                    <span className="text-sm font-bold text-stone-900">
+                      {label.split(" ").slice(-1)}
+                    </span>
+                  </p>
 
-  <button
-    type="button"
-    onClick={() => setShowAccountModal(true)}
-    className="mx-auto mt-7 flex items-center justify-center gap-2 rounded-full bg-stone-800 px-6 py-4 text-sm font-semibold text-white shadow-sm"
-  >
-    <Copy className="h-4 w-4" />
-    신랑측 계좌번호
-  </button>
+                  <p className="mt-1 whitespace-nowrap text-sm font-medium text-stone-700">
+                    {bank} {account}
+                  </p>
+                </div>
 
-    <button
-    type="button"
-    onClick={() => setShowAccountModal(true)}
-    className="mx-auto mt-7 flex items-center justify-center gap-2 rounded-full bg-stone-800 px-6 py-4 text-sm font-semibold text-white shadow-sm"
-  >
-    <Copy className="h-4 w-4" />
-    신부측 계좌번호
-  </button>
-
+                <Copy className="h-4 w-4 shrink-0 text-stone-400" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
 </Section>
 
 <section className="relative min-h-screen overflow-hidden bg-stone-900">
@@ -1270,14 +1569,25 @@ const shareInvitation = () => {
     </p>
   </div>
 
-    <button
-  type="button"
-  onClick={shareInvitation}
-  className="mt-10 flex items-center justify-center gap-2 rounded-full bg-[#f7dd4a] px-6 py-4 text-sm font-semibold text-stone-900"
->
-  <MessageCircle className="h-4 w-4" />
-  카카오톡으로 공유하기
-</button>
+   <div className="mt-10 flex flex-col items-center gap-5">
+  <button
+    type="button"
+    onClick={shareInvitation}
+    className="flex items-center justify-center gap-2 px-6 py-4 text-sm font-semibold text-white"
+  >
+    <MessageCircle className="h-4 w-4" />
+    카카오톡으로 공유하기
+  </button>
+
+  <button
+    type="button"
+    onClick={copyInvitationUrl}
+    className="flex items-center justify-center gap-2 text-sm font-semibold text-white/90"
+  >
+    <Copy className="h-4 w-4" />
+    청첩장 주소 복사하기
+  </button>
+</div>
   </div>
 </section>
 
@@ -1410,7 +1720,7 @@ const shareInvitation = () => {
       ×
     </button>
 
-    <div className="h-[85vh] w-full max-w-[430px] overflow-hidden rounded-2xl bg-white">
+    <div className="h-[85vh] w-full max-w-[430px] overflow-hidden">
       <TransformWrapper
         initialScale={1}
         minScale={1}
@@ -1490,69 +1800,7 @@ const shareInvitation = () => {
   </div>
 )}
 
-{showAccountModal && (
-  <div
-    className="fixed inset-0 z-[1000] flex items-center justify-center overscroll-contain bg-black/70 px-5"
-    onClick={() => setShowAccountModal(false)}
-  >
-    <div
-      className="w-full max-w-[390px] rounded-[2rem] bg-white p-6 text-center shadow-2xl"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <button
-        type="button"
-        onClick={() => setShowAccountModal(false)}
-        className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-stone-100 text-xl text-stone-500"
-        aria-label="닫기"
-      >
-        ×
-      </button>
 
-      <p className="mb-3 text-xs tracking-[0.28em] text-stone-400">
-        ACCOUNT
-      </p>
-      <h2 className="font-serif text-2xl">마음 전하실 곳</h2>
-      <p className="mt-3 text-sm leading-6 text-stone-500">
-        계좌번호를 누르면 복사됩니다.
-      </p>
-
-      <div className="mt-6 space-y-4 text-left text-sm">
-        {[
-  ["신랑 강준석", "국민", "750602-01-234482"],
-  ["신랑 아버지 강형진", "농협", "821113-56-085108"],
-  ["신랑 어머니 유숙희", "농협", "356-0695-5044-13"],
-  ["신부 윤선영", "국민", "539701-04-021122"],
-  ["신부 아버지 윤태열", "신한", "110-000-000000"],
-  ["신부 어머니 최희영", "하나", "000-000000-00000"],
-].map(([label, bank, account]) => (
-  <button
-    key={label}
-    type="button"
-    onClick={() => copyText(label, `${bank} ${account}`)}
-    className="flex w-full items-center justify-between gap-3 rounded-2xl bg-[#fbf8f3] px-4 py-3 text-left"
-  >
-    <div className="min-w-0">
-      <p>
-        <span className="text-xs text-stone-400">
-          {label.split(" ").slice(0, -1).join(" ")}
-        </span>{" "}
-        <span className="text-sm font-bold text-stone-900">
-          {label.split(" ").slice(-1)}
-        </span>
-      </p>
-
-      <p className="mt-1 whitespace-nowrap text-sm font-medium text-stone-700">
-        {bank} {account}
-      </p>
-    </div>
-
-    <Copy className="h-4 w-4 shrink-0 text-stone-400" />
-  </button>
-))}
-      </div>
-    </div>
-  </div>
-)}
 
         {copied && (
           <motion.div
