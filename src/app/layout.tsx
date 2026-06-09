@@ -17,10 +17,10 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://junseok-seonyoung-wedding.vercel.app"),
   title: "강준석♡윤선영의 결혼식에 초대합니다",
-  description: "2027년 01월 30일 PM 03시 10분",
+  description: "2027년 01월 30일 토요일 15:10",
   openGraph: {
     title: "강준석♡윤선영의 결혼식에 초대합니다",
-    description: "2027년 01월 30일 PM 03시 10분",
+    description: "2027년 01월 30일 토요일 15:10",
     url: "https://junseok-seonyoung-wedding.vercel.app",
     siteName: "Wedding Invitation",
     images: [
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "강준석♡윤선영의 결혼식에 초대합니다",
-    description: "2027년 01월 30일 토요일 PM 03시 10분",
+    description: "2027년 01월 30일 토요일 15:10",
     images: [
   "https://junseok-seonyoung-wedding.vercel.app/images/og-image.png",
 ],

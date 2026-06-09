@@ -48,6 +48,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+const GUESTBOOK_ADMIN_PASSWORD = "0221";
 const wedding = {
   groom: "강준석",
   bride: "윤선영",
@@ -57,8 +58,8 @@ const wedding = {
   time: "오후 3시 10분",
   secondTime: "오후 2시 40분",
   venue: "베니르홀",
-  hall: "웨딩스퀘어 강변 3층",
-  address: "서울 광진구 광나루로56길 85,\n테크노마트",
+  hall: "웨딩스퀘어 강변",
+  address: "서울 광진구 광나루로56길 85,\n테크노마트 3층",
   intro:
     //"저희 두 사람의 소중한 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
      "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n행복한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n진심 어린 축복으로 함께해 주시면\n감사하겠습니다.",
@@ -313,7 +314,7 @@ function Section({
     <motion.section
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: false, amount: 0.18 }}
+      viewport={{ once: true, amount: 0.18 }}
       variants={fadeUp}
       className={`relative px-6 py-14 ${className}`}
     >
@@ -542,6 +543,8 @@ const [galleryIndex, setGalleryIndex] = useState(0);
 
 const touchStartX = useRef<number | null>(null);
 const touchEndX = useRef<number | null>(null);
+const touchStartY = useRef<number | null>(null);
+const touchEndY = useRef<number | null>(null);
 const [showGalleryHint, setShowGalleryHint] = useState(true);
 const [showGalleryControls, setShowGalleryControls] = useState(true);
 
@@ -625,10 +628,11 @@ useEffect(() => {
 
   const loadGuestbook = async () => {
   const { data, error } = await supabase
-    .from("guestbook")
-    .select("id, name, message, created_at")
-    .order("created_at", { ascending: false })
-    .limit(3);
+  .from("guestbook")
+  .select("id, name, message, created_at")
+  .eq("is_hidden", false)
+  .order("created_at", { ascending: false })
+  .limit(3);
 
   if (error) {
     console.error(error);
@@ -638,9 +642,10 @@ useEffect(() => {
   setGuestbookEntries(data || []);
 
   const { data: allData, error: allError } = await supabase
-    .from("guestbook")
-    .select("id, name, message, created_at")
-    .order("created_at", { ascending: false });
+  .from("guestbook")
+  .select("id, name, message, created_at")
+  .eq("is_hidden", false)
+  .order("created_at", { ascending: false });
 
   if (allError) {
     console.error(allError);
@@ -716,17 +721,17 @@ const submitGuestbook = async () => {
   const message = guestMessage.trim();
 
   if (!name) {
-    alert("이름을 입력해주세요.");
+    alert("성함을 입력해주세요.");
     return;
   }
 
   if (!message) {
-    alert("축하 메시지를 입력해주세요.");
+    alert("축하 메시지를 입력해주세요.(비방, 욕설 등의 글은 임의로 삭제되며 형사처벌의 대상이 될 수 있습니다");
     return;
   }
 
   if (name.length > 20) {
-    alert("이름은 20자 이내로 입력해주세요.");
+    alert("20자 이내로 입력해주세요.");
     return;
   }
 
@@ -762,6 +767,39 @@ const submitGuestbook = async () => {
     setIsSubmittingGuestbook(false);
   }
 };
+
+const hideGuestbookEntry = async (id: number) => {
+  const password = prompt("관리자 비밀번호를 입력해주세요.");
+
+  if (password === null) return;
+
+  if (password !== GUESTBOOK_ADMIN_PASSWORD) {
+    alert("비밀번호가 틀렸습니다.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("guestbook")
+    .update({ is_hidden: true })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    alert("숨김 처리 중 오류가 발생했어요.");
+    return;
+  }
+
+  const { data } = await supabase
+    .from("guestbook")
+    .select("id, name, message, created_at")
+    .eq("is_hidden", false)
+    .order("created_at", { ascending: false });
+
+  setGuestbookEntries((prev) => prev.filter((entry) => entry.id !== id));
+  setAllGuestbookEntries((prev) => prev.filter((entry) => entry.id !== id));
+};
+
+
 
 const toggleMusic = async () => {
   const audio = audioRef.current;
@@ -825,8 +863,8 @@ const shareInvitation = () => {
   window.Kakao.Share.sendDefault({
     objectType: "feed",
     content: {
-      title: `${wedding.groom}♡${wedding.bride} 모바일 청첩장`,
-      description: "소중한 날, 함께 축복해주시면 감사하겠습니다.",
+      title: `${wedding.groom}♡${wedding.bride}의 결혼식에 초대합니다`,
+      description: "2027년 01월 30일 토요일 15:10",
       imageUrl,
       link: {
         mobileWebUrl: invitationUrl,
@@ -915,8 +953,17 @@ const copyInvitationUrl = async () => {
 >
   {wedding.groom}
   <span className="mx-3 text-[24px] font-light text-white/75">&amp;</span>
-  {wedding.bride}
+  {wedding.bride} 
 </motion.h1>
+
+<motion.p
+  initial={{ opacity: 0, y: 8 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.65, duration: 0.8 }}
+  className="mt-4 text-sm tracking-[0.25em] text-white/85 drop-shadow-sm"
+>
+  결혼합니다
+</motion.p>
             </div>
 
             <div className="pb-7">
@@ -1108,59 +1155,50 @@ const copyInvitationUrl = async () => {
   <div
   className="relative overflow-hidden rounded-[1.8rem] bg-stone-100 shadow-sm"
   onTouchStart={(event) => {
-    touchStartX.current = event.touches[0].clientX;
-  }}
-  onTouchMove={(event) => {
-    touchEndX.current = event.touches[0].clientX;
-  }}
-  onTouchEnd={() => {
-    if (touchStartX.current === null || touchEndX.current === null) return;
+  touchStartX.current = event.touches[0].clientX;
+  touchStartY.current = event.touches[0].clientY;
+}}
+onTouchMove={(event) => {
+  touchEndX.current = event.touches[0].clientX;
+  touchEndY.current = event.touches[0].clientY;
+}}
+onTouchEnd={() => {
+  if (
+    touchStartX.current === null ||
+    touchEndX.current === null ||
+    touchStartY.current === null ||
+    touchEndY.current === null
+  ) {
+    return;
+  }
 
-    const distance = touchStartX.current - touchEndX.current;
+  const diffX = touchStartX.current - touchEndX.current;
+  const diffY = touchStartY.current - touchEndY.current;
 
-    if (Math.abs(distance) > 50) {
-      if (distance > 0) {
+  const isHorizontalSwipe =
+    Math.abs(diffX) > 90 && Math.abs(diffX) > Math.abs(diffY) * 1.8;
 
-  setGalleryIndex((prev) =>
-    prev === wedding.gallery.length - 1 ? 0 : prev + 1
-  );
-} else {
+  if (isHorizontalSwipe) {
+    setShowGalleryHint(false);
 
-  setGalleryIndex((prev) =>
-    prev === 0 ? wedding.gallery.length - 1 : prev - 1
-  );
-}
+    if (diffX > 0) {
+      setGalleryIndex((prev) =>
+        prev === wedding.gallery.length - 1 ? 0 : prev + 1
+      );
+    } else {
+      setGalleryIndex((prev) =>
+        prev === 0 ? wedding.gallery.length - 1 : prev - 1
+      );
     }
+  }
 
-    touchStartX.current = null;
-    touchEndX.current = null;
-  }}
+  touchStartX.current = null;
+  touchEndX.current = null;
+  touchStartY.current = null;
+  touchEndY.current = null;
+}}
 >
-{showGalleryHint && galleryIndex === 0 && (
-  <div className="absolute right-4 top-4 z-20 flex items-center gap-2 rounded-xl bg-black/35 px-3 py-2 text-[11px] text-white backdrop-blur">
-    <motion.span
-      animate={{ x: [-3, 3, -3] }}
-      transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-      className="text-base"
-    >
-      ‹
-    </motion.span>
 
-    <span className="leading-4">
-      밀어서 더 많은
-      <br />
-      이미지 보기
-    </span>
-
-    <motion.span
-      animate={{ x: [3, -3, 3] }}
-      transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-      className="text-base"
-    >
-      ›
-    </motion.span>
-  </div>
-)}
 
     <motion.div
   className="flex h-[520px]"
@@ -1313,10 +1351,12 @@ const copyInvitationUrl = async () => {
         index !== 0 ? "border-t border-stone-100 pt-4" : ""
       } ${index !== 2 ? "pb-4" : ""}`}
     >
-      <p className="font-semibold">{item.title}</p>
-      <p className="mt-1 whitespace-pre-line text-sm leading-6 text-stone-500">
-        {item.text}
-      </p>
+      <p className="text-[15px] font-semibold tracking-[0.02em] text-[#9a7a63]">
+       {item.title}
+        </p>
+      <p className="mt-2 whitespace-pre-line text-[13px] leading-6 text-stone-500">
+           {item.text}
+         </p>
     </div>
   ))}
 </div>
@@ -1374,9 +1414,17 @@ const copyInvitationUrl = async () => {
     ) : (
       guestbookEntries.map((item) => (
         <div
-          key={item.id}
-          className="rounded-[1.7rem] bg-white p-5 shadow-sm"
-        >
+  key={item.id}
+  className="relative rounded-[1.7rem] bg-white p-5 shadow-sm"
+>
+  <button
+    type="button"
+    onClick={() => hideGuestbookEntry(item.id)}
+    className="absolute right-5 top-5 text-lg leading-none text-stone-300"
+    aria-label="방명록 숨기기"
+  >
+    ×
+  </button>
           <p className="text-xs tracking-[0.22em] text-stone-400">
             from.
           </p>
@@ -1422,8 +1470,8 @@ const copyInvitationUrl = async () => {
         title: "신랑측 계좌번호",
         accounts: [
           ["신랑 강준석", "국민", "750602-01-234482"],
-          ["신랑 아버지 강형진", "농협", "821113-56-085108"],
-          ["신랑 어머니 유숙희", "농협", "356-0695-5044-13"],
+          ["아버지 강형진", "농협", "821113-56-085108"],
+          ["어머니 유숙희", "농협", "356-0695-5044-13"],
         ],
       },
       {
@@ -1431,8 +1479,8 @@ const copyInvitationUrl = async () => {
         title: "신부측 계좌번호",
         accounts: [
           ["신부 윤선영", "국민", "539701-04-021122"],
-          ["신부 아버지 윤태열", "신한", "110-000-000000"],
-          ["신부 어머니 최희영", "하나", "000-000000-00000"],
+          ["아버지 윤태열", "신한", "110-000-000000"],
+          ["어머니 최희영", "하나", "000-000000-00000"],
         ],
       },
     ].map((group) => (
@@ -1503,18 +1551,18 @@ const copyInvitationUrl = async () => {
 <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-12 pt-24 text-center text-white">
   <div className="flex flex-col items-center">
 
-    <p className="font-serif text-3xl leading-[1.75] drop-shadow-md">
-      저희의 새로운 시작을
+    <p className="font-serif text-2xl leading-[1.75] drop-shadow-md">
+      새로운 시작을 함께 해주셔서
       <br />
-      함께 해주셔서 감사합니다.
+      감사합니다
     </p>
 
     <div className="my-9 h-px w-14 bg-white/40" />
 
-    <p className="font-serif text-2xl leading-[1.8] drop-shadow-md">
+    <p className="font-serif text-1xl leading-[1.8] drop-shadow-md">
       신랑 {wedding.groom}
       <br />
-      <span className="text-xl">♥</span>
+      <span className="text-1xl">♥</span>
       <br />
       신부 {wedding.bride}
     </p>
@@ -1725,9 +1773,17 @@ const copyInvitationUrl = async () => {
       <div className="mt-6 flex-1 space-y-3 overflow-y-auto pr-1">
         {allGuestbookEntries.map((item) => (
           <div
-            key={item.id}
-            className="rounded-[1.7rem] bg-white p-5 shadow-sm"
-          >
+  key={item.id}
+  className="relative rounded-[1.7rem] bg-white p-5 shadow-sm"
+>
+  <button
+    type="button"
+    onClick={() => hideGuestbookEntry(item.id)}
+    className="absolute right-5 top-5 text-lg leading-none text-stone-300"
+    aria-label="방명록 숨기기"
+  >
+    ×
+  </button>
             <p className="text-xs tracking-[0.22em] text-stone-400">
               from.
             </p>
@@ -1754,14 +1810,17 @@ const copyInvitationUrl = async () => {
 
 
         {copied && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="fixed bottom-6 left-1/2 z-50 w-[280px] -translate-x-1/2 rounded-full bg-stone-900 px-5 py-3 text-center text-sm text-white shadow-xl"
-          >
-            복사되었습니다
-          </motion.div>
-        )}
+  <motion.div
+    initial={{ opacity: 0, y: 18, scale: 0.96 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: 10, scale: 0.96 }}
+    transition={{ duration: 0.28, ease: "easeOut" }}
+    className="fixed bottom-7 left-1/2 z-50 flex w-[250px] -translate-x-1/2 items-center justify-center gap-2 rounded-full bg-white/90 px-5 py-3 text-center text-sm font-medium text-stone-700 shadow-[0_10px_30px_rgba(80,60,45,0.18)] ring-1 ring-stone-200/70 backdrop-blur"
+  >
+    <Copy className="h-4 w-4 text-[#9a7a63]" />
+    주소를 복사했어요.
+  </motion.div>
+)}
 
         <footer className="bg-[#fbf8f3] px-6 py-6 text-center text-xs text-stone-400">
         ©{new Date(wedding.weddingDateISO).getFullYear()} {wedding.groom}♡{wedding.bride} Wedding Invitation
