@@ -622,38 +622,25 @@ useEffect(() => {
 }, [selectedImageIndex, selectedMapImage, showAccountModal, showGuestbookModal]);
 
   useEffect(() => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return;
-  }
+  if (!supabaseUrl || !supabaseAnonKey) return;
 
   const loadGuestbook = async () => {
-  const { data, error } = await supabase
-  .from("guestbook")
-  .select("id, name, message, created_at")
-  .eq("is_hidden", false)
-  .order("created_at", { ascending: false })
-  .limit(3);
+    const { data, error } = await supabase
+      .from("guestbook")
+      .select("id, name, message, created_at, is_hidden")
+      .eq("is_hidden", false)
+      .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+    if (error) {
+      console.error(error);
+      return;
+    }
 
-  setGuestbookEntries(data || []);
+    const visibleData = data || [];
 
-  const { data: allData, error: allError } = await supabase
-  .from("guestbook")
-  .select("id, name, message, created_at")
-  .eq("is_hidden", false)
-  .order("created_at", { ascending: false });
-
-  if (allError) {
-    console.error(allError);
-    return;
-  }
-
-  setAllGuestbookEntries(allData || []);
-};
+    setAllGuestbookEntries(visibleData);
+    setGuestbookEntries(visibleData.slice(0, 3));
+  };
 
   loadGuestbook();
 
@@ -662,34 +649,15 @@ useEffect(() => {
     .on(
       "postgres_changes",
       {
-        event: "INSERT",
+        event: "*",
         schema: "public",
         table: "guestbook",
       },
-      (payload) => {
-        const newEntry = payload.new as GuestbookEntry;
-
-        setGuestbookEntries((prev) => {
-          if (prev.some((entry) => entry.id === newEntry.id)) {
-            return prev;
-          }
-
-          return [newEntry, ...prev].slice(0, 3);
-        });
-
-setAllGuestbookEntries((prev) => {
-  if (prev.some((entry) => entry.id === newEntry.id)) {
-    return prev;
-  }
-
-  return [newEntry, ...prev];
-});
-
+      () => {
+        loadGuestbook();
       }
     )
-    .subscribe((status) => {
-  console.log("guestbook realtime status:", status);
-});
+    .subscribe();
 
   return () => {
     supabase.removeChannel(channel);
@@ -726,7 +694,7 @@ const submitGuestbook = async () => {
   }
 
   if (!message) {
-    alert("축하 메시지를 입력해주세요.(비방, 욕설 등의 글은 임의로 삭제되며 형사처벌의 대상이 될 수 있습니다");
+    alert("축하 메시지를 입력해주세요.(비방, 욕설 등의 글은 임의로 삭제되며 형사처벌의 대상이 될 수 있습니다.)");
     return;
   }
 
@@ -791,12 +759,13 @@ const hideGuestbookEntry = async (id: number) => {
 
   const { data } = await supabase
     .from("guestbook")
-    .select("id, name, message, created_at")
+    .select("id, name, message, created_at, is_hidden")
     .eq("is_hidden", false)
     .order("created_at", { ascending: false });
+    
 
-  setGuestbookEntries((prev) => prev.filter((entry) => entry.id !== id));
-  setAllGuestbookEntries((prev) => prev.filter((entry) => entry.id !== id));
+  setAllGuestbookEntries(data || []);
+  setGuestbookEntries((data || []).slice(0, 3));
 };
 
 
@@ -1385,7 +1354,7 @@ onTouchEnd={() => {
         onChange={(event) => setGuestMessage(event.target.value)}
         maxLength={300}
         rows={4}
-        placeholder="축하 메시지를 입력해주세요."
+        placeholder="축하 메시지를 입력해주세요.(비방, 욕설 등의 글은 임의로 삭제되며 형사처벌의 대상이 될 수 있습니다.)"
         className="w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 outline-none ring-1 ring-stone-100 focus:ring-stone-300"
       />
 
