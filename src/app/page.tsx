@@ -597,12 +597,15 @@ useEffect(() => {
   if (!galleryDiv) return;
 
   const handleTouchMove = (event: TouchEvent) => {
-    const diffX = touchStartX.current! - event.touches[0].clientX;
-    const diffY = touchStartY.current! - event.touches[0].clientY;
+    // 현재 터치 위치 업데이트
+    touchEndX.current = event.touches[0].clientX;
+    touchEndY.current = event.touches[0].clientY;
 
-    // 세로 스크롤일 때 막기
+    // 수직 스크롤 막기
+    const diffX = touchStartX.current! - touchEndX.current;
+    const diffY = touchStartY.current! - touchEndY.current;
     if (Math.abs(diffY) > Math.abs(diffX)) {
-      event.preventDefault();
+      event.preventDefault(); // 세로 스크롤 차단
     }
   };
 
@@ -1166,7 +1169,7 @@ const copyInvitationUrl = async () => {
     const diffY = touchStartY.current - touchEndY.current;
 
     const isHorizontalSwipe =
-      Math.abs(diffX) > 90 && Math.abs(diffX) > Math.abs(diffY) * 1.8;
+      Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY) * 1.2; // 민감도 조절
 
     if (isHorizontalSwipe) {
       setShowGalleryHint(false);
