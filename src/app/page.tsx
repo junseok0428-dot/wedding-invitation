@@ -590,6 +590,30 @@ useEffect(() => {
     return () => clearInterval(timer);
   }, []);
 
+const galleryRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  const galleryDiv = galleryRef.current;
+  if (!galleryDiv) return;
+
+  const handleTouchMove = (event: TouchEvent) => {
+    const diffX = touchStartX.current! - event.touches[0].clientX;
+    const diffY = touchStartY.current! - event.touches[0].clientY;
+
+    // 세로 스크롤일 때 막기
+    if (Math.abs(diffY) > Math.abs(diffX)) {
+      event.preventDefault();
+    }
+  };
+
+  galleryDiv.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+  return () => {
+    galleryDiv.removeEventListener("touchmove", handleTouchMove);
+  };
+}, []);
+
+
 useEffect(() => {
   setTimeUntilWedding(getTimeUntilWedding());
 
@@ -1121,34 +1145,22 @@ const copyInvitationUrl = async () => {
           </div>
 
          <div className="mt-8">
+
+
  <div
+  ref={galleryRef}
   className="relative overflow-hidden rounded-[1.8rem] bg-stone-100 shadow-sm"
   onTouchStart={(event) => {
     touchStartX.current = event.touches[0].clientX;
     touchStartY.current = event.touches[0].clientY;
   }}
-  onTouchMove={(event) => {
-  touchEndX.current = event.touches[0].clientX;
-  touchEndY.current = event.touches[0].clientY;
-
-  // 수직 스크롤 차단만 처리
-  const diffX = touchStartX.current! - touchEndX.current;
-  const diffY = touchStartY.current! - touchEndY.current;
-
-  if (Math.abs(diffY) > Math.abs(diffX)) {
-    event.preventDefault(); // 세로 스크롤 막기
-  }
-}}
-
   onTouchEnd={() => {
     if (
       touchStartX.current === null ||
       touchEndX.current === null ||
       touchStartY.current === null ||
       touchEndY.current === null
-    ) {
-      return;
-    }
+    ) return;
 
     const diffX = touchStartX.current - touchEndX.current;
     const diffY = touchStartY.current - touchEndY.current;
@@ -1158,7 +1170,6 @@ const copyInvitationUrl = async () => {
 
     if (isHorizontalSwipe) {
       setShowGalleryHint(false);
-
       if (diffX > 0) {
         setGalleryIndex((prev) =>
           prev === wedding.gallery.length - 1 ? 0 : prev + 1
@@ -1170,7 +1181,7 @@ const copyInvitationUrl = async () => {
       }
     }
 
-    // 터치 초기화
+    // 초기화
     touchStartX.current = null;
     touchEndX.current = null;
     touchStartY.current = null;
