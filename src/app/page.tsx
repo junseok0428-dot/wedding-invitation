@@ -1378,7 +1378,7 @@ const copyInvitationUrl = async () => {
         onChange={(event) => setGuestMessage(event.target.value)}
         maxLength={300}
         rows={4}
-        placeholder="축하 메시지를 입력해주세요.(비방, 욕설 등의 글은 임의로 삭제되며 형사처벌의 대상이 될 수 있습니다.)"
+        placeholder="축하 메시지를 입력해주세요."
         className="w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 outline-none ring-1 ring-stone-100 focus:ring-stone-300"
       />
 
