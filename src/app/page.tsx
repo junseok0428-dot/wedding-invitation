@@ -1135,7 +1135,7 @@ const copyInvitationUrl = async () => {
   const diffX = touchStartX.current! - touchEndX.current;
   const diffY = touchStartY.current! - touchEndY.current;
 
-  if (Math.abs(diffX) < Math.abs(diffY)) {
+  if (Math.abs(diffY) > Math.abs(diffX)) {
     event.preventDefault(); // 세로 스크롤 막기
   }
 }}
