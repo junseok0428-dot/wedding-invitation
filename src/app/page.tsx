@@ -1787,7 +1787,7 @@ onTouchEnd={() => {
     className="fixed bottom-7 left-1/2 z-50 flex w-[250px] -translate-x-1/2 items-center justify-center gap-2 rounded-full bg-white/90 px-5 py-3 text-center text-sm font-medium text-stone-700 shadow-[0_10px_30px_rgba(80,60,45,0.18)] ring-1 ring-stone-200/70 backdrop-blur"
   >
     <Copy className="h-4 w-4 text-[#9a7a63]" />
-    주소를 복사했어요.
+    복사했어요.
   </motion.div>
 )}
 
