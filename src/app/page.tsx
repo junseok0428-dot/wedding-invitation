@@ -1121,51 +1121,61 @@ const copyInvitationUrl = async () => {
           </div>
 
          <div className="mt-8">
-  <div
+ <div
   className="relative overflow-hidden rounded-[1.8rem] bg-stone-100 shadow-sm"
   onTouchStart={(event) => {
-  touchStartX.current = event.touches[0].clientX;
-  touchStartY.current = event.touches[0].clientY;
-}}
-onTouchMove={(event) => {
+    touchStartX.current = event.touches[0].clientX;
+    touchStartY.current = event.touches[0].clientY;
+  }}
+  onTouchMove={(event) => {
   touchEndX.current = event.touches[0].clientX;
   touchEndY.current = event.touches[0].clientY;
-}}
-onTouchEnd={() => {
-  if (
-    touchStartX.current === null ||
-    touchEndX.current === null ||
-    touchStartY.current === null ||
-    touchEndY.current === null
-  ) {
-    return;
+
+  // 수직 스크롤 차단만 처리
+  const diffX = touchStartX.current! - touchEndX.current;
+  const diffY = touchStartY.current! - touchEndY.current;
+
+  if (Math.abs(diffX) < Math.abs(diffY)) {
+    event.preventDefault(); // 세로 스크롤 막기
   }
+}}
 
-  const diffX = touchStartX.current - touchEndX.current;
-  const diffY = touchStartY.current - touchEndY.current;
-
-  const isHorizontalSwipe =
-    Math.abs(diffX) > 90 && Math.abs(diffX) > Math.abs(diffY) * 1.8;
-
-  if (isHorizontalSwipe) {
-    setShowGalleryHint(false);
-
-    if (diffX > 0) {
-      setGalleryIndex((prev) =>
-        prev === wedding.gallery.length - 1 ? 0 : prev + 1
-      );
-    } else {
-      setGalleryIndex((prev) =>
-        prev === 0 ? wedding.gallery.length - 1 : prev - 1
-      );
+  onTouchEnd={() => {
+    if (
+      touchStartX.current === null ||
+      touchEndX.current === null ||
+      touchStartY.current === null ||
+      touchEndY.current === null
+    ) {
+      return;
     }
-  }
 
-  touchStartX.current = null;
-  touchEndX.current = null;
-  touchStartY.current = null;
-  touchEndY.current = null;
-}}
+    const diffX = touchStartX.current - touchEndX.current;
+    const diffY = touchStartY.current - touchEndY.current;
+
+    const isHorizontalSwipe =
+      Math.abs(diffX) > 90 && Math.abs(diffX) > Math.abs(diffY) * 1.8;
+
+    if (isHorizontalSwipe) {
+      setShowGalleryHint(false);
+
+      if (diffX > 0) {
+        setGalleryIndex((prev) =>
+          prev === wedding.gallery.length - 1 ? 0 : prev + 1
+        );
+      } else {
+        setGalleryIndex((prev) =>
+          prev === 0 ? wedding.gallery.length - 1 : prev - 1
+        );
+      }
+    }
+
+    // 터치 초기화
+    touchStartX.current = null;
+    touchEndX.current = null;
+    touchStartY.current = null;
+    touchEndY.current = null;
+  }}
 >
 
 
