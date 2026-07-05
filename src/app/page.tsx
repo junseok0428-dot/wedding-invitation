@@ -519,9 +519,7 @@ function GalleryImage({
       whileInView={{ opacity: 1, scale: 1, y: 0 }}
       viewport={{ once: false }}
       transition={{ delay: index * 0.08, duration: 0.55 }}
-      className={`relative overflow-hidden rounded-[1.8rem] bg-stone-100 shadow-sm ${
-        index === 0 ? "col-span-2" : ""
-      }`}
+      className="relative overflow-hidden rounded-[1.4rem] bg-stone-100 shadow-sm"
     >
       <img
         src={src}
@@ -540,6 +538,10 @@ export default function MobileWeddingInvitation() {
   const [selectedMapImage, setSelectedMapImage] = useState<string | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 const [galleryIndex, setGalleryIndex] = useState(0);
+const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
+const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
+
+const [showIntro, setShowIntro] = useState(true);
 
 const touchStartX = useRef<number | null>(null);
 const touchEndX = useRef<number | null>(null);
@@ -580,6 +582,14 @@ useEffect(() => {
   };
 
   playMusic();
+}, []);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowIntro(false);
+  }, 2600);
+
+  return () => clearTimeout(timer);
 }, []);
 
   useEffect(() => {
@@ -901,6 +911,8 @@ const copyInvitationUrl = async () => {
       preload="auto"
     />
 
+
+
     <button
       type="button"
       onClick={toggleMusic}
@@ -1076,27 +1088,38 @@ const copyInvitationUrl = async () => {
 
     return (
       <div
-        key={`${item.day}-${index}`}
-        className={`relative flex aspect-square items-center justify-center rounded-full ${
-          item.isWeddingDay
-                 ? "bg-[#d8b3a2] font-semibold text-white shadow-[0_4px_20px_rgba(160,120,100,0.38)]"
-            : item.currentMonth
-              ? isSunday
-                ? "text-red-400"
-                : isSaturday
-                  ? "text-blue-400"
-                  : "text-stone-700"
-              : isSunday
-                ? "text-red-200"
-                : isSaturday
-                  ? "text-blue-200"
-                  : "text-stone-300"
-        }`}
-      >
-        
-        {item.day}
-      </div>
-    );
+    key={`${item.day}-${index}`}
+    className={`relative flex aspect-square items-center justify-center ${
+      item.currentMonth
+        ? isSunday
+          ? "text-red-400"
+          : isSaturday
+            ? "text-blue-400"
+            : "text-stone-700"
+        : isSunday
+          ? "text-red-200"
+          : isSaturday
+            ? "text-blue-200"
+            : "text-stone-300"
+    }`}
+  >
+    {item.isWeddingDay && (
+      <span className="absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 text-[46px] leading-none text-[#e59a9a]">
+        ♡
+      </span>
+    )}
+
+    <span
+      className={
+        item.isWeddingDay
+          ? "relative z-10 font-semibold text-[#9a6f6f]"
+          : "relative z-10"
+      }
+    >
+      {item.day}
+    </span>
+  </div>
+);
   })}
 </div>
 
@@ -1139,110 +1162,53 @@ const copyInvitationUrl = async () => {
 
 
 
-        <Section>
-          <div className="text-center">
-            <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-              GALLERY
-            </p>
-
-          </div>
-
-         <div className="mt-8">
-
-
- <div
-  ref={galleryRef}
-  className="relative overflow-hidden rounded-[1.8rem] bg-stone-100 shadow-sm"
-  onTouchStart={(event) => {
-    touchStartX.current = event.touches[0].clientX;
-    touchStartY.current = event.touches[0].clientY;
-  }}
-  onTouchEnd={() => {
-    if (
-      touchStartX.current === null ||
-      touchEndX.current === null ||
-      touchStartY.current === null ||
-      touchEndY.current === null
-    ) return;
-
-    const diffX = touchStartX.current - touchEndX.current;
-    const diffY = touchStartY.current - touchEndY.current;
-
-    const isHorizontalSwipe =
-      Math.abs(diffX) > 30 && Math.abs(diffX) > Math.abs(diffY) * 1.2; // 민감도 조절
-
-    if (isHorizontalSwipe) {
-      setShowGalleryHint(false);
-      if (diffX > 0) {
-        setGalleryIndex((prev) =>
-          prev === wedding.gallery.length - 1 ? 0 : prev + 1
-        );
-      } else {
-        setGalleryIndex((prev) =>
-          prev === 0 ? wedding.gallery.length - 1 : prev - 1
-        );
-      }
-    }
-
-    // 초기화
-    touchStartX.current = null;
-    touchEndX.current = null;
-    touchStartY.current = null;
-    touchEndY.current = null;
-  }}
->
-
-
-    <motion.div
-  className="flex h-[520px]"
-  animate={{ x: `-${galleryIndex * 100}%` }}
-  transition={{ duration: 0.35, ease: "easeOut" }}
->
-  {wedding.gallery.map((src, index) => (
-    <img
-      key={src}
-      src={src}
-      alt={`갤러리 이미지 ${index + 1}`}
-      draggable={false}
-      className="h-[520px] w-full shrink-0 select-none object-cover touch-pan-y"
-    />
-  ))}
-</motion.div>
-
-    <button
-      type="button"
-      onClick={() => {
-  setShowGalleryHint(false);
-  setGalleryIndex((prev) =>
-    prev === 0 ? wedding.gallery.length - 1 : prev - 1
-  );
-}}
-      className="absolute left-4 top-1/2 flex -translate-y-1/2 items-center justify-center text-white drop-shadow-md"
-      aria-label="이전 사진"
-    >
-      <ChevronLeft className="h-8 w-8 stroke-[1.5]" />
-    </button>
-
-    <button
-      type="button"
-      onClick={() => {
-  setShowGalleryHint(false);
-  setGalleryIndex((prev) =>
-    prev === wedding.gallery.length - 1 ? 0 : prev + 1
-  );
-}}
-      className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center justify-center text-white drop-shadow-md"
-      aria-label="다음 사진"
-    >
-      <ChevronRight className="h-8 w-8 stroke-[1.5]" />
-    </button>
+<Section>
+  <div id="gallery-section" className="text-center">
+    <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+      GALLERY
+    </p>
   </div>
 
-  <p className="mt-5 text-center text-sm text-stone-500">
-    {galleryIndex + 1} / {wedding.gallery.length}
-  </p>
-</div>
-        </Section>
+  <div className="mt-8 grid grid-cols-2 gap-3">
+    {(isGalleryExpanded ? wedding.gallery : wedding.gallery.slice(0, 4)).map(
+      (src, index) => (
+        <GalleryImage
+          key={src}
+          src={src}
+          index={index}
+          onClick={() => setSelectedGalleryIndex(index)}
+        />
+      )
+    )}
+  </div>
+
+  <div className="relative mt-8 flex justify-center">
+    {!isGalleryExpanded && wedding.gallery.length > 4 ? (
+      <button
+        type="button"
+        onClick={() => setIsGalleryExpanded(true)}
+        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm"
+      >
+        전체보기
+      </button>
+    ) : (
+      <button
+        type="button"
+        onClick={() => {
+          setIsGalleryExpanded(false);
+          setTimeout(() => {
+            document
+              .querySelector("#gallery-section")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 50);
+        }}
+        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm"
+      >
+        갤러리 접기
+      </button>
+    )}
+  </div>
+</Section>
 
 
 
@@ -1698,6 +1664,61 @@ const copyInvitationUrl = async () => {
   </div>
 </div>
     </motion.div>
+  </div>
+)}
+
+{selectedGalleryIndex !== null && (
+  <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/85 px-4">
+    <div className="absolute left-5 top-6 rounded-xl border border-white/20 bg-black/30 px-4 py-2 text-sm text-white">
+      {selectedGalleryIndex + 1} / {wedding.gallery.length}
+    </div>
+
+    <button
+      type="button"
+      onClick={() => setSelectedGalleryIndex(null)}
+      className="absolute right-5 top-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-black/30 text-3xl text-white"
+      aria-label="갤러리 닫기"
+    >
+      ×
+    </button>
+
+    <img
+      src={wedding.gallery[selectedGalleryIndex]}
+      alt={`갤러리 사진 ${selectedGalleryIndex + 1}`}
+      className="max-h-[72vh] w-full max-w-[720px] object-contain"
+    />
+
+    {selectedGalleryIndex > 0 && (
+      <button
+        type="button"
+        onClick={() =>
+          setSelectedGalleryIndex((prev) =>
+            prev === null ? null : Math.max(prev - 1, 0)
+          )
+        }
+        className="absolute bottom-10 left-1/2 flex h-14 w-14 -translate-x-[4.2rem] items-center justify-center rounded-2xl border border-white/20 bg-black/40 text-4xl text-white"
+        aria-label="이전 사진"
+      >
+        ‹
+      </button>
+    )}
+
+    {selectedGalleryIndex < wedding.gallery.length - 1 && (
+      <button
+        type="button"
+        onClick={() =>
+          setSelectedGalleryIndex((prev) =>
+            prev === null
+              ? null
+              : Math.min(prev + 1, wedding.gallery.length - 1)
+          )
+        }
+        className="absolute bottom-10 left-1/2 flex h-14 w-14 translate-x-[0.7rem] items-center justify-center rounded-2xl border border-white/20 bg-black/40 text-4xl text-white"
+        aria-label="다음 사진"
+      >
+        ›
+      </button>
+    )}
   </div>
 )}
 
