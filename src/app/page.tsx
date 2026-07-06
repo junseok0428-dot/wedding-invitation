@@ -1074,13 +1074,14 @@ const drawQrPreview = async () => {
 
 const downloadQr = async (type: "heart" | "normal") => {
   const canvas = await createQrCanvas(type);
-  const link = document.createElement("a");
 
+  const link = document.createElement("a");
   link.href = canvas.toDataURL("image/png");
+
   link.download =
     type === "heart"
-      ? "junseok-seonyoung-heart-qr.png"
-      : "junseok-seonyoung-basic-qr.png";
+      ? "junseok♡seonyoung-heart-qr.png"
+      : "junseok♡seonyoung-qr.png";
 
   link.click();
 };
@@ -2078,7 +2079,7 @@ const copyInvitationUrl = async () => {
           onClick={() => {
   const link = document.createElement("a");
   link.href = "/images/wedding-heart-qr.png";
-  link.download = "junseok-seonyoung-heart-qr.png";
+  link.download = "junseok♡seonyoung-heart-qr.png";
   link.click();
 }}
           className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
