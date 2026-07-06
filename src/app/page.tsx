@@ -24,14 +24,19 @@ import {
   ChevronLeft,
   ChevronRight,
 
+  QrCode as QrCodeIcon,
+  Download,
+  X,
 
   Car,
   Train,
   Bus,
   Clock,
+    Lock,
 
 } from "lucide-react";
 
+import QRCode from "qrcode";
 
 type GuestbookEntry = {
   id: number;
@@ -541,6 +546,9 @@ const [galleryIndex, setGalleryIndex] = useState(0);
 const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
 const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
 
+const [showQrModal, setShowQrModal] = useState(false);
+const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
 const [showIntro, setShowIntro] = useState(true);
 
 const touchStartX = useRef<number | null>(null);
@@ -557,7 +565,21 @@ const [guestMessage, setGuestMessage] = useState("");
 
 const audioRef = useRef<HTMLAudioElement | null>(null);
 const kakaoMapRef = useRef<HTMLDivElement | null>(null);
+const kakaoMapInstanceRef = useRef<any>(null);
+
 const [isMusicOn, setIsMusicOn] = useState(false);
+const [isMapLocked, setIsMapLocked] = useState(true);
+
+const changeMapLock = (locked: boolean) => {
+  setIsMapLocked(locked);
+
+  const map = kakaoMapInstanceRef.current;
+
+  if (!map) return;
+
+  map.setDraggable(!locked);
+  map.setZoomable(!locked);
+};
 
 const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
 
@@ -583,6 +605,12 @@ useEffect(() => {
 
   playMusic();
 }, []);
+
+useEffect(() => {
+  if (!showQrModal) return;
+
+  void drawQrPreview();
+}, [showQrModal]);
 
 useEffect(() => {
   const timer = setTimeout(() => {
@@ -833,12 +861,18 @@ useEffect(() => {
       const position = new kakao.maps.LatLng(37.5355, 127.0957);
 
       const map = new kakao.maps.Map(kakaoMapRef.current, {
-        center: position,
-        level: 3,
-      });
+  center: position,
+  level: 3,
+});
 
-      const marker = new kakao.maps.Marker({ position });
-      marker.setMap(map);
+kakaoMapInstanceRef.current = map;
+
+// 처음에는 스크롤 방해 안 되게 지도 이동/확대 잠금
+map.setDraggable(false);
+map.setZoomable(false);
+
+const marker = new kakao.maps.Marker({ position });
+marker.setMap(map);
     });
   };
 
@@ -848,6 +882,208 @@ useEffect(() => {
   script.onload = loadMap;
   document.head.appendChild(script);
 }, []);
+
+const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
+
+const isInsideHeart = (x: number, y: number, size: number) => {
+  const nx = (x - size / 2) / (size * 0.33);
+  const ny = -(y - size * 0.52) / (size * 0.33);
+  return Math.pow(nx * nx + ny * ny - 1, 3) - nx * nx * ny * ny * ny <= 0;
+};
+
+const drawRoundRect = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number
+) => {
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+  ctx.fill();
+};
+
+const createQrCanvas = async (type: "heart" | "normal") => {
+  const canvas = document.createElement("canvas");
+
+  const size = type === "heart" ? 520 : 420;
+  canvas.width = size;
+  canvas.height = size;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return canvas;
+
+  const qr = QRCode.create(invitationUrl, {
+    errorCorrectionLevel: "H",
+  });
+
+  const moduleCount = qr.modules.size;
+
+  const isHeartArea = (x: number, y: number) => {
+    const nx = (x - 0.5) * 2.25;
+    const ny = (y - 0.47) * -2.25;
+    const value =
+      Math.pow(nx * nx + ny * ny - 1, 3) - nx * nx * ny * ny * ny;
+
+    return value <= 0;
+  };
+
+  const drawFinder = (
+    x: number,
+    y: number,
+    cell: number,
+    dark: string,
+    light: string
+  ) => {
+    const s = cell * 7;
+
+    ctx.fillStyle = light;
+    ctx.fillRect(x - cell * 0.7, y - cell * 0.7, s + cell * 1.4, s + cell * 1.4);
+
+    ctx.fillStyle = dark;
+    ctx.fillRect(x, y, s, s);
+
+    ctx.fillStyle = light;
+    ctx.fillRect(x + cell, y + cell, cell * 5, cell * 5);
+
+    ctx.fillStyle = dark;
+    ctx.fillRect(x + cell * 2, y + cell * 2, cell * 3, cell * 3);
+  };
+
+  if (type === "normal") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+
+    const padding = 34;
+    const qrSize = size - padding * 2;
+    const cell = qrSize / moduleCount;
+
+    ctx.fillStyle = "#111111";
+
+    for (let row = 0; row < moduleCount; row += 1) {
+      for (let col = 0; col < moduleCount; col += 1) {
+        if (!qr.modules.get(row, col)) continue;
+
+        const isFinder =
+          (row < 7 && col < 7) ||
+          (row < 7 && col >= moduleCount - 7) ||
+          (row >= moduleCount - 7 && col < 7);
+
+        if (isFinder) continue;
+
+        const x = padding + col * cell;
+        const y = padding + row * cell;
+
+        ctx.fillRect(x, y, Math.ceil(cell * 0.95), Math.ceil(cell * 0.95));
+      }
+    }
+
+    drawFinder(padding, padding, cell, "#111111", "#ffffff");
+    drawFinder(padding + (moduleCount - 7) * cell, padding, cell, "#111111", "#ffffff");
+    drawFinder(padding, padding + (moduleCount - 7) * cell, cell, "#111111", "#ffffff");
+
+    return canvas;
+  }
+
+  // 하트형 디자인 QR: QR을 자르지 않고 점 크기/농도로 하트 실루엣 표현
+  const gradient = ctx.createLinearGradient(0, 0, size, size);
+  gradient.addColorStop(0, "#fff7f7");
+  gradient.addColorStop(0.48, "#f8dede");
+  gradient.addColorStop(1, "#fffafa");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, size, size);
+
+  const padding = 58;
+  const qrSize = size - padding * 2;
+  const cell = qrSize / moduleCount;
+
+  // 은은한 하트 배경
+  ctx.save();
+  ctx.translate(size / 2, size / 2 + 8);
+  ctx.scale(size * 0.0054, size * 0.0054);
+  ctx.beginPath();
+  ctx.moveTo(0, 32);
+  ctx.bezierCurveTo(-72, -28, -48, -92, 0, -50);
+  ctx.bezierCurveTo(48, -92, 72, -28, 0, 32);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(255,255,255,0.42)";
+  ctx.fill();
+  ctx.restore();
+
+  for (let row = 0; row < moduleCount; row += 1) {
+    for (let col = 0; col < moduleCount; col += 1) {
+      if (!qr.modules.get(row, col)) continue;
+
+      const isFinder =
+        (row < 7 && col < 7) ||
+        (row < 7 && col >= moduleCount - 7) ||
+        (row >= moduleCount - 7 && col < 7);
+
+      if (isFinder) continue;
+
+      const centerX = (col + 0.5) / moduleCount;
+      const centerY = (row + 0.5) / moduleCount;
+      const insideHeart = isHeartArea(centerX, centerY);
+
+      const x = padding + col * cell + cell / 2;
+      const y = padding + row * cell + cell / 2;
+
+      ctx.beginPath();
+      ctx.fillStyle = insideHeart
+        ? "#5b1717"
+        : "rgba(91, 23, 23, 0.24)";
+
+      const dotSize = insideHeart ? cell * 0.44 : cell * 0.18;
+      ctx.arc(x, y, dotSize, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  const dark = "#5b1717";
+  const light = "#f8dede";
+
+  drawFinder(padding, padding, cell, dark, light);
+  drawFinder(padding + (moduleCount - 7) * cell, padding, cell, dark, light);
+  drawFinder(padding, padding + (moduleCount - 7) * cell, cell, dark, light);
+
+  // 하트 아래 포인트 점
+  ctx.fillStyle = "#5b1717";
+  ctx.beginPath();
+  ctx.arc(size / 2, size - 62, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+};
+
+const drawQrPreview = async () => {
+  if (!qrCanvasRef.current) return;
+
+  const previewCanvas = qrCanvasRef.current;
+  const previewCtx = previewCanvas.getContext("2d");
+  if (!previewCtx) return;
+
+  const heartCanvas = await createQrCanvas("heart");
+
+  previewCanvas.width = heartCanvas.width;
+  previewCanvas.height = heartCanvas.height;
+  previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  previewCtx.drawImage(heartCanvas, 0, 0);
+};
+
+const downloadQr = async (type: "heart" | "normal") => {
+  const canvas = await createQrCanvas(type);
+  const link = document.createElement("a");
+
+  link.href = canvas.toDataURL("image/png");
+  link.download =
+    type === "heart"
+      ? "junseok-seonyoung-heart-qr.png"
+      : "junseok-seonyoung-basic-qr.png";
+
+  link.click();
+};
 
 const shareInvitation = () => {
   const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
@@ -1104,7 +1340,7 @@ const copyInvitationUrl = async () => {
     }`}
   >
     {item.isWeddingDay && (
-      <span className="absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 text-[46px] leading-none text-[#e59a9a]">
+      <span className="absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 text-[60px] leading-none text-[#e59a9a]">
         ♡
       </span>
     )}
@@ -1218,8 +1454,37 @@ const copyInvitationUrl = async () => {
   </p>
 
   <div className="mt-6 overflow-hidden rounded-[1.5rem] bg-white shadow-sm">
-    <div ref={kakaoMapRef} className="h-[320px] w-full" />
+  <div className="relative h-[320px] w-full">
+    <div ref={kakaoMapRef} className="h-full w-full" />
+
+    {isMapLocked ? (
+      <div
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#fbf8f3]/10"
+        style={{ touchAction: "pan-y" }}
+      >
+        <button
+  type="button"
+  onClick={() => changeMapLock(false)}
+  className="rounded-full bg-white/65 px-6 py-3 text-sm font-semibold text-stone-700 shadow-sm backdrop-blur-[2px]"
+>
+  지도 보기
+</button>
+
+<p className="mt-3 rounded-full bg-white/45 px-3 py-1 text-[11px] text-stone-500 shadow-sm backdrop-blur-[2px]">
+  터치하면 지도를 움직일 수 있어요
+</p>
+      </div>
+    ) : (
+      <button
+        type="button"
+        onClick={() => changeMapLock(true)}
+        className="absolute right-3 top-3 z-10 rounded-full bg-white/95 px-2 py-2 text-xs font-semibold text-stone-600 shadow-md"
+      >
+        <Lock className="h-5 w-5" strokeWidth={2.4} />
+      </button>
+    )}
   </div>
+</div>
 
  <div className="mt-3 grid grid-cols-4 gap-2">
   <a
@@ -1545,6 +1810,16 @@ const copyInvitationUrl = async () => {
     <Copy className="h-4 w-4" />
     청첩장 주소 복사하기
   </button>
+
+<button
+  type="button"
+  onClick={() => setShowQrModal(true)}
+  className="mt-4 flex items-center justify-center gap-3 text-sm font-semibold text-white/90"
+>
+  <QrCodeIcon className="h-4 w-4" />
+  QR 코드 보기
+</button>
+
 </div>
   </div>
 </section>
@@ -1755,6 +2030,62 @@ const copyInvitationUrl = async () => {
           />
         </TransformComponent>
       </TransformWrapper>
+    </div>
+  </div>
+)}
+
+{showQrModal && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 px-6">
+    <div className="relative w-full max-w-[360px] rounded-[30px] bg-[#f8dede] p-5 text-center shadow-2xl">
+      <button
+        type="button"
+        onClick={() => setShowQrModal(false)}
+        className="absolute right-4 top-3 text-3xl leading-none text-[#5b1717]/80"
+        aria-label="QR 닫기"
+      >
+        ×
+      </button>
+
+      <img
+  src="/images/wedding-heart-qr.png"
+  alt="하트 QR 코드"
+  className="mx-auto mt-5 h-[300px] w-[300px] rounded-2xl object-contain"
+/>
+
+      <p className="mt-4 text-sm leading-6 text-[#7d5f5f]">
+        청첩장 QR 코드
+      </p>
+
+      <div className="mt-5 grid grid-cols-3 gap-3">
+        <button
+          type="button"
+          onClick={() => setShowQrModal(false)}
+          className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
+        >
+          닫기
+        </button>
+
+        <button
+          type="button"
+          onClick={() => downloadQr("normal")}
+          className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
+        >
+          ■ QR저장
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+  const link = document.createElement("a");
+  link.href = "/images/wedding-heart-qr.png";
+  link.download = "junseok-seonyoung-heart-qr.png";
+  link.click();
+}}
+          className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
+        >
+          ♥ QR저장
+        </button>
+      </div>
     </div>
   </div>
 )}
