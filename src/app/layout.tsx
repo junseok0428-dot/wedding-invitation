@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   {
     url: "https://junseok-seonyoung-wedding.vercel.app/images/og-image.png",
     width: 2000,
-    height: 630,
+    height: 1200,
     alt: "강준석♡윤선영의 결혼식에 초대합니다",
   },
 ],
