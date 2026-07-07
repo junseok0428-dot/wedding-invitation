@@ -1102,24 +1102,15 @@ const drawQrPreview = async () => {
 const downloadQr = async (type: "heart" | "normal") => {
   const canvas = await createQrCanvas(type);
 
-  canvas.toBlob((blob) => {
-    if (!blob) return;
+  const link = document.createElement("a");
+  link.href = canvas.toDataURL("image/png");
 
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+  link.download =
+    type === "heart"
+      ? "junseok♡seonyoung-heart-qr.png"
+      : "junseok♡seonyoung-qr.png";
 
-    link.href = url;
-    link.download =
-      type === "heart"
-        ? "junseok♡seonyoung-heart-qr.png"
-        : "junseok♡seonyoung-qr.png";
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    URL.revokeObjectURL(url);
-  }, "image/png");
+  link.click();
 };
 
 const shareInvitation = () => {
@@ -2104,7 +2095,12 @@ const copyInvitationUrl = async () => {
 
         <button
           type="button"
-          onClick={() => downloadQr("normal")}
+          onClick={() => {
+  const link = document.createElement("a");
+  link.href = "/images/junseok♡seonyoung-qr.png";
+  link.download = "junseok♡seonyoung-qr.png";
+  link.click();
+}}
           className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
         >
           ■ QR저장
