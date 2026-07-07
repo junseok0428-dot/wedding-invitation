@@ -587,23 +587,51 @@ const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
     getTimeSinceFirstMet()
   );
 
-useEffect(() => {
+const tryPlayMusic = async () => {
   const audio = audioRef.current;
 
-  if (!audio) return;
+  if (!audio) return false;
 
-  audio.volume = 0.35;
+  try {
+    audio.volume = 0.35;
+    audio.muted = false;
+    await audio.play();
+    setIsMusicOn(true);
+    return true;
+  } catch {
+    setIsMusicOn(false);
+    return false;
+  }
+};
 
-  const playMusic = async () => {
-    try {
-      await audio.play();
-      setIsMusicOn(true);
-    } catch {
-      setIsMusicOn(false);
-    }
+useEffect(() => {
+  let cleanupDone = false;
+
+  const unlockAndPlay = async () => {
+    const success = await tryPlayMusic();
+
+    if (!success || cleanupDone) return;
+
+    window.removeEventListener("pointerdown", unlockAndPlay);
+    window.removeEventListener("touchstart", unlockAndPlay);
+    window.removeEventListener("click", unlockAndPlay);
+    window.removeEventListener("scroll", unlockAndPlay);
   };
 
-  playMusic();
+  void unlockAndPlay();
+
+  window.addEventListener("pointerdown", unlockAndPlay, { passive: true });
+  window.addEventListener("touchstart", unlockAndPlay, { passive: true });
+  window.addEventListener("click", unlockAndPlay);
+  window.addEventListener("scroll", unlockAndPlay, { passive: true });
+
+  return () => {
+    cleanupDone = true;
+    window.removeEventListener("pointerdown", unlockAndPlay);
+    window.removeEventListener("touchstart", unlockAndPlay);
+    window.removeEventListener("click", unlockAndPlay);
+    window.removeEventListener("scroll", unlockAndPlay);
+  };
 }, []);
 
 useEffect(() => {
@@ -841,8 +869,7 @@ const toggleMusic = async () => {
   if (!audio) return;
 
   if (audio.paused) {
-    await audio.play();
-    setIsMusicOn(true);
+    await tryPlayMusic();
   } else {
     audio.pause();
     setIsMusicOn(false);
@@ -2048,7 +2075,7 @@ const copyInvitationUrl = async () => {
       </button>
 
       <img
-  src="/images/wedding-heart-qr.png"
+  src="/images/junseok♡seonyoung-heart-qr.png"
   alt="하트 QR 코드"
   className="mx-auto mt-5 h-[300px] w-[300px] rounded-2xl object-contain"
 />
@@ -2078,7 +2105,7 @@ const copyInvitationUrl = async () => {
           type="button"
           onClick={() => {
   const link = document.createElement("a");
-  link.href = "/images/wedding-heart-qr.png";
+  link.href = "/images/junseok♡seonyoung-heart-qr.png";
   link.download = "junseok♡seonyoung-heart-qr.png";
   link.click();
 }}
