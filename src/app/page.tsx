@@ -1102,15 +1102,24 @@ const drawQrPreview = async () => {
 const downloadQr = async (type: "heart" | "normal") => {
   const canvas = await createQrCanvas(type);
 
-  const link = document.createElement("a");
-  link.href = canvas.toDataURL("image/png");
+  canvas.toBlob((blob) => {
+    if (!blob) return;
 
-  link.download =
-    type === "heart"
-      ? "junseok♡seonyoung-heart-qr.png"
-      : "junseok♡seonyoung-qr.png";
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
-  link.click();
+    link.href = url;
+    link.download =
+      type === "heart"
+        ? "junseok♡seonyoung-heart-qr.png"
+        : "junseok♡seonyoung-qr.png";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+  }, "image/png");
 };
 
 const shareInvitation = () => {
