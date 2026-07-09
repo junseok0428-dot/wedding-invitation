@@ -19,14 +19,15 @@
   }
 }
 
+html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
   font-family: var(--font-gowun-batang), serif;
+  -webkit-text-size-adjust: 100%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .font-serif {
@@ -35,4 +36,42 @@ body {
 
 .tracking-title {
   font-family: var(--font-playfair), serif;
+}
+
+/* 이미지 / 영상 저장 방지 */
+img,
+picture,
+video,
+canvas,
+svg {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+
+  -webkit-touch-callout: none;
+}
+
+/* 이미지 자체가 터치/우클릭 대상이 되지 않게 처리 */
+img {
+  pointer-events: none;
+}
+
+/* 버튼 안 이미지 클릭은 버튼으로 전달되게 유지 */
+button img,
+a img {
+  pointer-events: none;
+}
+
+/* 방명록 입력은 가능해야 하므로 예외 처리 */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }

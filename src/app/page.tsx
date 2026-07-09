@@ -1115,7 +1115,7 @@ const downloadQr = async (type: "heart" | "normal") => {
 
 const shareInvitation = () => {
   const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
-  const imageUrl = invitationUrl + "/images/og-image.png";
+  const imageUrl = invitationUrl + "/images/og-image-v2.png";
 
   // kakao SDK가 로드되지 않았을 경우 링크 복사 안내
   if (!window.Kakao) {
