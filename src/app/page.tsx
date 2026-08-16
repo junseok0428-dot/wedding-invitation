@@ -100,8 +100,28 @@ const wedding = {
     "/images/gallery6.jpg",
     "/images/gallery7.jpg",
     "/images/gallery8.jpg",
+    "/images/gallery9.jpg",
+    "/images/gallery10.jpg",
     "/images/gallery11.jpg",
     "/images/gallery12.jpg",
+    "/images/gallery13.jpg",
+    "/images/gallery14.jpg",
+  //"/images/gallery15.jpg",
+  //"/images/gallery16.jpg",
+  //"/images/gallery17.jpg",
+  //"/images/gallery18.jpg",
+  //"/images/gallery19.jpg",
+  //"/images/gallery20.jpg",
+  //"/images/gallery21.jpg",
+  //"/images/gallery22.jpg",
+  //"/images/gallery23.jpg",
+  //"/images/gallery24.jpg",
+  //"/images/gallery25.jpg",
+  //"/images/gallery26.jpg",
+  //"/images/gallery27.jpg",
+  //"/images/gallery28.jpg",
+  //"/images/gallery29.jpg",
+  //"/images/gallery30.jpg",
   ],
 };
 
@@ -468,6 +488,8 @@ function ImageBox({
         <img
           src={src}
           alt={alt}
+          draggable={false}
+          onContextMenu={(event) => event.preventDefault()}
           className={`h-full w-full ${contain ? "object-contain" : "object-cover"}`}
           onError={() => setImageError(true)}
         />
@@ -527,10 +549,13 @@ function GalleryImage({
       className="relative overflow-hidden rounded-[1.4rem] bg-stone-100 shadow-sm"
     >
       <img
-        src={src}
-        alt={`갤러리 사진 ${index + 1}`}
-        className="h-auto w-full object-contain"
-      />
+  src={src}
+  alt={`갤러리 사진 ${index + 1}`}
+  draggable={false}
+  onContextMenu={(event) => event.preventDefault()}
+  onDragStart={(event) => event.preventDefault()}
+  className="pointer-events-none h-[300px] w-full select-none object-cover"
+/>
     </motion.button>
   );
 }
@@ -545,6 +570,42 @@ export default function MobileWeddingInvitation() {
 const [galleryIndex, setGalleryIndex] = useState(0);
 const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
 const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
+
+useEffect(() => {
+  const blockSave = (event: Event) => {
+    const target = event.target as HTMLElement | null;
+
+    if (!target) return;
+
+    const isBlockedElement =
+      target.tagName === "IMG" ||
+      target.tagName === "VIDEO" ||
+      target.tagName === "CANVAS" ||
+      target.closest("img") ||
+      target.closest("video") ||
+      target.closest("canvas");
+
+    if (isBlockedElement) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+
+  const blockDrag = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  document.addEventListener("contextmenu", blockSave, true);
+  document.addEventListener("dragstart", blockDrag, true);
+  document.addEventListener("selectstart", blockSave, true);
+
+  return () => {
+    document.removeEventListener("contextmenu", blockSave, true);
+    document.removeEventListener("dragstart", blockDrag, true);
+    document.removeEventListener("selectstart", blockSave, true);
+  };
+}, []);
 
 const [showQrModal, setShowQrModal] = useState(false);
 const qrCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -1115,7 +1176,7 @@ const downloadQr = async (type: "heart" | "normal") => {
 
 const shareInvitation = () => {
   const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
-  const imageUrl = invitationUrl + "/images/og-image-v2.png";
+  const imageUrl = invitationUrl + "/images/kakao-share.png";
 
   // kakao SDK가 로드되지 않았을 경우 링크 복사 안내
   if (!window.Kakao) {
@@ -1936,6 +1997,7 @@ const copyInvitationUrl = async () => {
         src={wedding.gallery[selectedImageIndex]}
         alt={`확대 이미지 ${selectedImageIndex + 1}`}
         draggable={false}
+        onContextMenu={(event) => event.preventDefault()}
         className="max-h-[78vh] max-w-full select-none rounded-2xl object-contain shadow-2xl"
       />
 
@@ -1986,10 +2048,13 @@ const copyInvitationUrl = async () => {
     </button>
 
     <img
-      src={wedding.gallery[selectedGalleryIndex]}
-      alt={`갤러리 사진 ${selectedGalleryIndex + 1}`}
-      className="max-h-[72vh] w-full max-w-[720px] object-contain"
-    />
+  src={wedding.gallery[selectedGalleryIndex]}
+  alt={`갤러리 사진 ${selectedGalleryIndex + 1}`}
+  draggable={false}
+  onContextMenu={(event) => event.preventDefault()}
+  onDragStart={(event) => event.preventDefault()}
+  className="max-h-[82vh] max-w-[92vw] select-none object-contain"
+/>
 
     {selectedGalleryIndex > 0 && (
       <button
@@ -2075,7 +2140,7 @@ const copyInvitationUrl = async () => {
       </button>
 
       <img
-  src="/images/junseok♡seonyoung-heart-qr.png"
+  src="/images/qr-preview-heart.png"
   alt="하트 QR 코드"
   className="mx-auto mt-5 h-[300px] w-[300px] rounded-2xl object-contain"
 />
