@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "Wedding Invitation",
     images: [
   {
-    url: "https://junseok-seonyoung-wedding.vercel.app/images/og-image-v2.png",
+    url: "https://junseok-seonyoung-wedding.vercel.app/images/og-image-v3.png",
     width: 1200,
     height: 630,
     alt: "강준석♡윤선영의 결혼식에 초대합니다",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "강준석♡윤선영의 결혼식에 초대합니다",
     description: "2027년 01월 30일 토요일 15:10",
     images: [
-  "https://junseok-seonyoung-wedding.vercel.app/images/og-image-v2.png",
+  "https://junseok-seonyoung-wedding.vercel.app/images/og-image-v3.png",
 ],
   },
 };
