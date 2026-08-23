@@ -1,7 +1,17 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Gowun_Batang, Playfair_Display } from "next/font/google";
+import { 
+  Gowun_Batang,
+  Playfair_Display,
+  Nanum_Pen_Script,
+} from "next/font/google";
 import "./globals.css";
+
+const nanumPen = Nanum_Pen_Script({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-nanum-pen",
+});
 
 const gowunBatang = Gowun_Batang({
   weight: ["400", "700"],
@@ -51,7 +61,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-<body className={`${gowunBatang.variable} ${playfair.variable}`}>
+<body
+  className={`${gowunBatang.variable} ${playfair.variable} ${nanumPen.variable}`}
+>
   {children}
   <script
     src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js"

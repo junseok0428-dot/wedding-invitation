@@ -82,7 +82,7 @@ const wedding = {
   naverMapUrl: "https://naver.me/FdCx2LFq",
   kakaoMapUrl: "https://map.kakao.com/?urlX=521142.99999999936&urlY=1121183.0000000005&urlLevel=3&itemId=23397688&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4%20%EA%B0%95%EB%B3%80&srcid=23397688&map_type=TYPE_MAP",
   googleMapUrl: "https://www.google.com/maps?sca_esv=1dc58019ac9a4f8a&output=search&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4&source=lnms&fbs=ADc_l-bD_nyrjATWBKup7flJ4rea5XFXsPHwMjGsTekJ1HCohBAQ3Hh19DqzlO7wr7YUgTdahuWH974VvSrJs4RQ62KmPakfWcC3PxowH7Qj6U35JfBSoRBAl27CH7o7NicNO6jPYwrbO3-KLu-p6GaC8OMuIWRlspfJasw6AD_0JlwcO_ezT0l8LoAUnAiDGYZhqbvO4u-0rYioEum0W6761pE9KqBTX_ru_NEiTXDKeLnCjlz0JnA&entry=mc&ved=1t:200715&ictx=111",
-  heroImage: "/images/main-start.jpg",
+  heroImage: "/images/main-start.JPG",
   middleImage: "/images/gallery2.jpg",
   endingImage: "/images/main-end.jpg",
   mainGallery: [
@@ -1204,7 +1204,7 @@ const downloadQr = async (type: "heart" | "normal") => {
 
 const shareInvitation = () => {
   const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
-  const imageUrl = invitationUrl + "/images/kakao-share.png";
+  const imageUrl = invitationUrl + "/images/kakao-share.JPG";
 
   // kakao SDK가 로드되지 않았을 경우 링크 복사 안내
   if (!window.Kakao) {
@@ -1291,64 +1291,90 @@ const copyInvitationUrl = async () => {
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9 }}
-            className="relative z-10 flex min-h-screen flex-col items-center justify-between px-7 py-12 text-center text-white"
-          >
-            <div className="pt-8">
-              <motion.p
-                initial={{ opacity: 0, letterSpacing: "0.1em" }}
-                animate={{ opacity: 1, letterSpacing: "0.35em" }}
-                transition={{ delay: 0.25, duration: 1.1 }}
-                className="mb-4 text-xs opacity-90"
-              >
-                WEDDING INVITATION
-              </motion.p>
-
-              <motion.h1
-  initial={{ opacity: 0, y: 12 }}
+  initial={{ opacity: 0, y: 18 }}
   animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.45, duration: 0.9 }}
-  className="font-serif text-[30px] leading-tight tracking-[0.16em] drop-shadow-sm"
+  transition={{ duration: 0.9 }}
+  className="relative z-10 flex min-h-screen flex-col items-center justify-between px-7 pb-3 pt-14 text-center text-white"
 >
-  {wedding.groom}
-  <span className="mx-3 text-[24px] font-light text-white/75">&amp;</span>
-  {wedding.bride} 
-</motion.h1>
+  {/* 상단 */}
+<div className="flex flex-col items-center">
 
-<motion.p
-  initial={{ opacity: 0, y: 8 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.65, duration: 0.8 }}
-  className="mt-4 text-sm tracking-[0.25em] text-white/85 drop-shadow-sm"
->
-  결혼합니다
-</motion.p>
-            </div>
+  {/* WEDDING INVITATION */}
+  <motion.p
+    initial={{ opacity: 0, letterSpacing: "0.1em" }}
+    animate={{ opacity: 1, letterSpacing: "0.35em" }}
+    transition={{ delay: 0.25, duration: 1.1 }}
+    className="mb-5 text-xs opacity-90"
+  >
+    WEDDING INVITATION
+  </motion.p>
 
-            <div className="pb-7">
-              <div className="mx-auto mb-7 flex items-center justify-center gap-3 text-white/90">
-  <span className="h-px w-3 bg-white/40" />
-  <span className="text-xs tracking-[0.25em]">D-{dday}</span>
-  <span className="h-px w-3 bg-white/40" />
+  {/* 강준석 & 윤선영 */}
+  <motion.h1
+    initial={{ opacity: 0, y: 12 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.45, duration: 0.9 }}
+    className="font-serif text-[30px] font-normal tracking-[0.3em] drop-shadow-sm"
+  >
+    {wedding.groom}
+    <span className="mx-3 text-[22px] font-normal text-white/85">
+      &
+    </span>
+    {wedding.bride}
+  </motion.h1>
+
+  {/* 저희 결혼합니다 */}
+  <motion.p
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.65, duration: 0.8 }}
+    className="mt-4 text-[18px] tracking-[0.3em] text-white/85 drop-shadow-sm"
+  >
+    저희 결혼합니다
+  </motion.p>
+
 </div>
 
-              <p className="mb-0.1 text-lg tracking-widest">2027. 01. 30. 토
-                </p>
-              <p className="text-sm opacity-90">오후 3시 10분</p>
 
-              <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 1.8 }}
-                className="mt-11 flex justify-center"
-              >
-                <ChevronDown className="h-7 w-7" />
-              </motion.div>
-            </div>
+  {/* 하단 */}
+  <div className="flex flex-col items-center pb-1">
 
-            
-          </motion.div>
+    {/* D-DAY */}
+    <div className="mb-2 flex items-center justify-center gap-3 text-white/90">
+      <span className="h-px w-3 bg-white/40" />
+
+      <span className="text-xs tracking-[0.25em]">
+        D-{dday}
+      </span>
+
+      <span className="h-px w-3 bg-white/40" />
+    </div>
+
+    {/* 날짜 */}
+    <p className="text-[18px] tracking-[0.16em] drop-shadow-sm">
+      2027. 01. 30. 토
+    </p>
+
+    {/* 시간 */}
+    <p className="mt-1 text-[14px] text-white/90 drop-shadow-sm">
+      오후 3시 10분
+    </p>
+
+    {/* 아래 스크롤 화살표 */}
+    <motion.div
+      animate={{ y: [0, 7, 0] }}
+      transition={{
+        repeat: Infinity,
+        duration: 1.7,
+        ease: "easeInOut",
+      }}
+      className="mt-6 flex justify-center"
+    >
+      <ChevronDown className="h-7 w-7" />
+    </motion.div>
+
+  </div>
+</motion.div>
 
 
         </section>
@@ -1869,66 +1895,113 @@ const copyInvitationUrl = async () => {
 </Section>
 
 <section className="relative min-h-screen overflow-hidden bg-stone-900">
-    <div className="absolute inset-0"></div>
-<div className="absolute inset-0">
-  <ImageBox
-    src={wedding.endingImage}
-    alt="엔딩 사진"
-    className="h-full w-full"
-  />
-</div>
-
-  <div className="absolute inset-0 bg-black/50" />
-
-<div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-12 pt-24 text-center text-white">
-  <div className="flex flex-col items-center">
-
-    <p className="font-serif text-2xl leading-[1.75] drop-shadow-md">
-      새로운 시작을 함께 해주셔서
-      <br />
-      감사합니다
-    </p>
-
-    <div className="my-9 h-px w-14 bg-white/40" />
-
-    <p className="font-serif text-1xl leading-[1.8] drop-shadow-md">
-      신랑 {wedding.groom}
-      <br />
-      <span className="text-1xl">♥</span>
-      <br />
-      신부 {wedding.bride}
-    </p>
+  {/* 엔딩 배경 이미지 */}
+  <div className="absolute inset-0">
+    <ImageBox
+      src={wedding.endingImage}
+      alt="엔딩 사진"
+      className="h-full w-full"
+    />
   </div>
 
-   <div className="mt-10 flex flex-col items-center gap-5">
-  <button
-    type="button"
-    onClick={shareInvitation}
-    className="flex items-center justify-center gap-2 px-6 py-4 text-sm font-semibold text-white"
-  >
-    <MessageCircle className="h-4 w-4" />
-    카카오톡으로 공유하기
-  </button>
+  {/* 어두운 오버레이 */}
+  <div className="absolute inset-0 bg-black/50" />
 
-  <button
-    type="button"
-    onClick={copyInvitationUrl}
-    className="flex items-center justify-center gap-2 text-sm font-semibold text-white/90"
-  >
-    <Copy className="h-4 w-4" />
-    청첩장 주소 복사하기
-  </button>
+  {/* 엔딩 콘텐츠 */}
+  <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-10 pt-15 text-center text-white">
 
-<button
-  type="button"
-  onClick={() => setShowQrModal(true)}
-  className="mt-4 flex items-center justify-center gap-3 text-sm font-semibold text-white/90"
->
-  <QrCodeIcon className="h-4 w-4" />
-  QR 코드 보기
-</button>
+    {/* 상단 문구 */}
+    <div className="flex flex-col items-center">
+      <p className="font-serif text-2xl leading-[1.5] drop-shadow-md">
+        저희의 새로운 시작을 함께 해주셔서 
+        <br />
+        감사합니다
+      </p>
+
+      <div className="my-3 h-px w-14 bg-white/40" />
+
+      <div className="flex items-center justify-center gap-5 font-serif drop-shadow-md">
+
+  <div className="flex items-center gap-2">
+    <span className="text-[13px] font-normal text-white/75">
+      신랑
+    </span>
+    <span className="text-[19px] font-medium text-white">
+      {wedding.groom}
+    </span>
+  </div>
+
+  <span className="text-[15px] text-white/80">
+    ♥
+  </span>
+
+  <div className="flex items-center gap-2">
+    <span className="text-[13px] font-normal text-white/75">
+      신부
+    </span>
+    <span className="text-[19px] font-medium text-white">
+      {wedding.bride}
+    </span>
+  </div>
 
 </div>
+    </div>
+
+    {/* 하단 3개 메뉴 */}
+    <div className="grid w-full grid-cols-3 items-start">
+
+      {/* 카카오톡 공유 */}
+      <button
+        type="button"
+        onClick={shareInvitation}
+        className="flex flex-col items-center justify-start text-white"
+      >
+        <MessageCircle
+          className="h-6 w-6"
+          strokeWidth={1.7}
+        />
+        <span className="mt-2 text-center text-[13px] font-semibold leading-[1.35]">
+          카카오톡
+          <br />
+          공유하기
+        </span>
+      </button>
+
+      {/* 청첩장 주소 복사 */}
+      <button
+        type="button"
+        onClick={copyInvitationUrl}
+        className="flex flex-col items-center justify-start text-white"
+      >
+        <Copy
+          className="h-6 w-6"
+          strokeWidth={1.7}
+        />
+        <span className="mt-2 text-center text-[13px] font-semibold leading-[1.35]">
+          청첩장 주소
+          <br />
+          복사하기
+        </span>
+      </button>
+
+      {/* QR 코드 */}
+      <button
+        type="button"
+        onClick={() => setShowQrModal(true)}
+        className="flex flex-col items-center justify-start text-white"
+      >
+        <QrCodeIcon
+          className="h-6 w-6"
+          strokeWidth={1.7}
+        />
+        <span className="mt-2 text-center text-[13px] font-semibold leading-[1.35]">
+          QR코드
+          <br />
+          보기
+        </span>
+      </button>
+
+    </div>
   </div>
 </section>
 
