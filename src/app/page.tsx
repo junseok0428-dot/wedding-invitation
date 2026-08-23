@@ -1282,7 +1282,7 @@ const copyInvitationUrl = async () => {
 
       <main className="mx-auto min-h-screen max-w-[430px] overflow-hidden bg-[#fbf8f3] shadow-2xl">
         <section className="relative min-h-screen overflow-hidden bg-stone-900">
-          <WinterFlakes />
+
           <div className="absolute inset-0">
             <ImageBox
               src={wedding.heroImage}
