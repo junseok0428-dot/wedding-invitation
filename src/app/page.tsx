@@ -572,6 +572,8 @@ function GalleryImage({
       <img
   src={src}
   alt={`갤러리 사진 ${index + 1}`}
+  loading="lazy"
+  decoding="async"
   draggable={false}
   onContextMenu={(event) => event.preventDefault()}
   onDragStart={(event) => event.preventDefault()}
