@@ -64,7 +64,7 @@ const wedding = {
   secondTime: "오후 2시 40분",
   venue: "베니르홀",
   hall: "웨딩스퀘어 강변",
-  address: "서울 광진구 광나루로56길 85,\n테크노마트 3층",
+  address: "서울 광진구\n광나루로56길 85,\n테크노마트 3층",
   intro:
     //"저희 두 사람의 소중한 만남이\n진실한 사랑으로 꽃피어\n오늘 이 자리를 빛내는 결혼식으로 이어졌습니다.\n\n평생 서로를 귀히 여기며\n처음의 설렘과 순수함을 잃지 않고\n존중하고 아껴 나가겠습니다.\n\n여러분의 따뜻한 축복이 함께 한다면\n더할 나위 없는 기쁨으로 간직하겠습니다.",
      "저희 두 사람의 작은 인연이\n서로를 향한 믿음과 사랑으로 자라\n평생을 함께할 약속으로 이어졌습니다.\n\n처음의 설렘을 오래 간직하며\n서로를 아끼고 존중하는 마음으로\n행복한 가정을 이루어 가겠습니다.\n\n귀한 걸음으로 자리를 빛내 주시고\n저희 두 사람의 새로운 시작을\n진심 어린 축복으로 함께해 주시면\n감사하겠습니다.",
@@ -82,9 +82,9 @@ const wedding = {
   naverMapUrl: "https://naver.me/FdCx2LFq",
   kakaoMapUrl: "https://map.kakao.com/?urlX=521142.99999999936&urlY=1121183.0000000005&urlLevel=3&itemId=23397688&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4%20%EA%B0%95%EB%B3%80&srcid=23397688&map_type=TYPE_MAP",
   googleMapUrl: "https://www.google.com/maps?sca_esv=1dc58019ac9a4f8a&output=search&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4&source=lnms&fbs=ADc_l-bD_nyrjATWBKup7flJ4rea5XFXsPHwMjGsTekJ1HCohBAQ3Hh19DqzlO7wr7YUgTdahuWH974VvSrJs4RQ62KmPakfWcC3PxowH7Qj6U35JfBSoRBAl27CH7o7NicNO6jPYwrbO3-KLu-p6GaC8OMuIWRlspfJasw6AD_0JlwcO_ezT0l8LoAUnAiDGYZhqbvO4u-0rYioEum0W6761pE9KqBTX_ru_NEiTXDKeLnCjlz0JnA&entry=mc&ved=1t:200715&ictx=111",
-  heroImage: "/images/main.jpg",
+  heroImage: "/images/main-start.jpg",
   middleImage: "/images/gallery2.jpg",
-  endingImage: "/images/gallery5.jpg",
+  endingImage: "/images/main-end.jpg",
   mainGallery: [
   "/images/gallery1.jpg",
   "/images/gallery2.jpg",
@@ -317,6 +317,27 @@ const fadeUp: Variants = {
       ease: "easeOut",
     },
   },
+};
+
+const downloadMapImage = async () => {
+  try {
+    const response = await fetch("/images/map-3f.png");
+    const blob = await response.blob();
+
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = blobUrl;
+    link.download = "웨딩스퀘어-강변-3층-약도.png";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("약도 저장 실패:", error);
+  }
 };
 
 const stagger: Variants = {
@@ -566,9 +587,9 @@ export default function MobileWeddingInvitation() {
   const [openAccountSide, setOpenAccountSide] = useState<"groom" | "bride" | null>(null);
   const [showGuestbookModal, setShowGuestbookModal] = useState(false);
   const [selectedMapImage, setSelectedMapImage] = useState<string | null>(null);
+  const [isMapZoomEnabled, setIsMapZoomEnabled] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 const [galleryIndex, setGalleryIndex] = useState(0);
-const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
 const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
 
 useEffect(() => {
@@ -756,10 +777,11 @@ useEffect(() => {
 
 useEffect(() => {
   const isAnyModalOpen =
-    selectedImageIndex !== null ||
-    selectedMapImage !== null ||
-    showAccountModal ||
-    showGuestbookModal;
+  selectedImageIndex !== null ||
+  selectedGalleryIndex !== null ||
+  selectedMapImage !== null ||
+  showAccountModal ||
+  showGuestbookModal;
 
   const originalBodyOverflow = document.body.style.overflow;
   const originalHtmlOverflow = document.documentElement.style.overflow;
@@ -773,7 +795,13 @@ useEffect(() => {
     document.body.style.overflow = originalBodyOverflow;
     document.documentElement.style.overflow = originalHtmlOverflow;
   };
-}, [selectedImageIndex, selectedMapImage, showAccountModal, showGuestbookModal]);
+}, [
+  selectedImageIndex,
+  selectedGalleryIndex,
+  selectedMapImage,
+  showAccountModal,
+  showGuestbookModal,
+]);
 
   useEffect(() => {
   if (!supabaseUrl || !supabaseAnonKey) return;
@@ -1494,45 +1522,30 @@ const copyInvitationUrl = async () => {
     </p>
   </div>
 
+  {/* 메인 갤러리는 항상 4장만 표시 */}
   <div className="mt-8 grid grid-cols-2 gap-3">
-    {(isGalleryExpanded ? wedding.gallery : wedding.gallery.slice(0, 4)).map(
-      (src, index) => (
-        <GalleryImage
-          key={src}
-          src={src}
-          index={index}
-          onClick={() => setSelectedGalleryIndex(index)}
-        />
-      )
-    )}
+    {wedding.gallery.slice(0, 4).map((src, index) => (
+      <GalleryImage
+        key={src}
+        src={src}
+        index={index}
+        onClick={() => setSelectedGalleryIndex(index)}
+      />
+    ))}
   </div>
 
-  <div className="relative mt-8 flex justify-center">
-    {!isGalleryExpanded && wedding.gallery.length > 4 ? (
+  {/* 전체보기 → 1번 사진부터 팝업으로 시작 */}
+  {wedding.gallery.length > 0 && (
+    <div className="relative mt-8 flex justify-center">
       <button
         type="button"
-        onClick={() => setIsGalleryExpanded(true)}
-        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm"
+        onClick={() => setSelectedGalleryIndex(0)}
+        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm transition active:scale-[0.98]"
       >
         전체보기
       </button>
-    ) : (
-      <button
-        type="button"
-        onClick={() => {
-          setIsGalleryExpanded(false);
-          setTimeout(() => {
-            document
-              .querySelector("#gallery-section")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" });
-          }, 50);
-        }}
-        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm"
-      >
-        갤러리 접기
-      </button>
-    )}
-  </div>
+    </div>
+  )}
 </Section>
 
 
@@ -1610,36 +1623,42 @@ const copyInvitationUrl = async () => {
     <div className="flex items-start gap-3">
       <MapPin className="mt-1 h-5 w-5 shrink-0 text-stone-500" />
 
-      <div className="min-w-0 flex-1">
-        <p className="font-semibold">{wedding.venue}</p>
-        <p className="text-sm text-stone-600">{wedding.hall}</p>
-        <p className="mt-2 whitespace-pre-line text-sm leading-6 text-stone-500">
-          {wedding.address}
-        </p>
-      </div>
+      <div className="min-w-0 flex-1 pr-1">
+  <p className="font-semibold text-stone-800">
+    {wedding.venue}
+  </p>
 
-      <div className="flex shrink-0 flex-col items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setSelectedMapImage("/images/map-3f.png")}
-          className="h-20 w-24 overflow-hidden rounded-2xl bg-white shadow-sm"
-          aria-label="3층 약도 보기"
-        >
-          <img
-            src="/images/map-3f.png"
-            alt="3층 약도"
-            className="h-full w-full object-contain"
-          />
-        </button>
+  <p className="mt-1 text-sm text-stone-600">
+    {wedding.hall}
+  </p>
 
-        <button
-          type="button"
-          onClick={() => setSelectedMapImage("/images/map-3f.png")}
-          className="text-[11px] font-medium text-stone-400"
-        >
-          3층 약도 보기
-        </button>
-      </div>
+  <p className="mt-2 whitespace-pre-line text-[14px] leading-6 text-stone-500">
+    {wedding.address}
+  </p>
+</div>
+
+      <div className="flex w-[120px] shrink-0 flex-col items-center gap-2">
+  <button
+    type="button"
+    onClick={() => setSelectedMapImage("/images/map-3f.png")}
+    className="h-[82px] w-full overflow-hidden rounded-2xl border border-stone-100 bg-white shadow-sm transition active:scale-[0.98]"
+    aria-label="3층 약도 보기"
+  >
+    <img
+      src="/images/map-3f.png"
+      alt="3층 약도"
+      className="h-full w-full object-contain"
+    />
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setSelectedMapImage("/images/map-3f.png")}
+    className="flex w-full items-center justify-center rounded-xl border border-stone-300 bg-stone-50 px-2 py-2.5 text-[12px] font-semibold text-stone-700 shadow-sm transition active:scale-[0.98]"
+  >
+    3층 약도 보기
+  </button>
+</div>
     </div>
   </div>
 
@@ -1782,18 +1801,18 @@ const copyInvitationUrl = async () => {
         id: "groom",
         title: "신랑측 계좌번호",
         accounts: [
-          ["신랑 강준석", "국민", "750602-01-234482"],
-          ["아버지 강형진", "농협", "821113-56-085108"],
-          ["어머니 유숙희", "농협", "356-0695-5044-13"],
+          ["신랑 강준석", "국민은행", "750602-01-234482"],
+          ["아버지 강형진", "농협은행", "821113-56-085108"],
+          ["어머니 유숙희", "농협은행", "356-0695-5044-13"],
         ],
       },
       {
         id: "bride",
         title: "신부측 계좌번호",
         accounts: [
-          ["신부 윤선영", "국민", "539701-04-021122"],
-          ["아버지 윤태열", "신한", "110-000-000000"],
-          ["어머니 최희영", "하나", "000-000000-00000"],
+          ["신부 윤선영", "국민은행", "539701-04-021122"],
+          ["아버지 윤태열", "하나은행", "279-910473-49707"],
+          ["어머니 최희영", "SC제일은행", "661-20-071196"],
         ],
       },
     ].map((group) => (
@@ -2033,96 +2052,176 @@ const copyInvitationUrl = async () => {
 )}
 
 {selectedGalleryIndex !== null && (
-  <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/85 px-4">
-    <div className="absolute left-5 top-6 rounded-xl border border-white/20 bg-black/30 px-4 py-2 text-sm text-white">
-      {selectedGalleryIndex + 1} / {wedding.gallery.length}
-    </div>
+  <div className="fixed inset-0 z-[9998] flex flex-col items-center justify-center bg-black/90 px-4 py-6">
 
+    {/* 닫기 */}
     <button
       type="button"
       onClick={() => setSelectedGalleryIndex(null)}
-      className="absolute right-5 top-6 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-black/30 text-3xl text-white"
+      className="absolute right-5 top-5 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-black/30 text-2xl text-white backdrop-blur"
       aria-label="갤러리 닫기"
     >
       ×
     </button>
 
-    <img
-  src={wedding.gallery[selectedGalleryIndex]}
-  alt={`갤러리 사진 ${selectedGalleryIndex + 1}`}
-  draggable={false}
-  onContextMenu={(event) => event.preventDefault()}
-  onDragStart={(event) => event.preventDefault()}
-  className="max-h-[82vh] max-w-[92vw] select-none object-contain"
-/>
+    {/* 원본 비율로 사진 표시 */}
+    <div
+  className="flex min-h-0 flex-1 touch-none items-center justify-center"
+  style={{
+    touchAction: "none",
+    WebkitUserSelect: "none",
+    userSelect: "none",
+  }}
+>
+  <img
+    src={wedding.gallery[selectedGalleryIndex]}
+    alt={`갤러리 사진 ${selectedGalleryIndex + 1}`}
+    draggable={false}
+    onContextMenu={(event) => event.preventDefault()}
+    onDragStart={(event) => event.preventDefault()}
+    onTouchStart={(event) => {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    }}
+    style={{
+      touchAction: "none",
+      WebkitUserSelect: "none",
+      userSelect: "none",
+      WebkitTouchCallout: "none",
+    }}
+    className="max-h-[78vh] max-w-[92vw] select-none object-contain"
+  />
+</div>
 
+   {/* 하단 컨트롤 */}
+<div className="mt-5 grid grid-cols-[48px_88px_48px] items-center justify-center gap-3">
+
+  {/* 이전 */}
+  <div className="flex h-12 w-12 items-center justify-center">
     {selectedGalleryIndex > 0 && (
       <button
         type="button"
         onClick={() =>
           setSelectedGalleryIndex((prev) =>
-            prev === null ? null : Math.max(prev - 1, 0)
+            prev === null ? null : prev - 1
           )
         }
-        className="absolute bottom-10 left-1/2 flex h-14 w-14 -translate-x-[4.2rem] items-center justify-center rounded-2xl border border-white/20 bg-black/40 text-4xl text-white"
+        className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/25 bg-white/10 text-white backdrop-blur transition active:scale-95"
         aria-label="이전 사진"
       >
-        ‹
+        <ChevronLeft className="h-5 w-5" strokeWidth={2} />
       </button>
     )}
+  </div>
 
+  {/* 현재 사진 번호 */}
+  <div className="flex h-12 w-[88px] items-center justify-center rounded-2xl border border-white/25 bg-white/10 text-sm font-medium text-white backdrop-blur">
+    {selectedGalleryIndex + 1} / {wedding.gallery.length}
+  </div>
+
+  {/* 다음 */}
+  <div className="flex h-12 w-12 items-center justify-center">
     {selectedGalleryIndex < wedding.gallery.length - 1 && (
       <button
         type="button"
         onClick={() =>
           setSelectedGalleryIndex((prev) =>
-            prev === null
-              ? null
-              : Math.min(prev + 1, wedding.gallery.length - 1)
+            prev === null ? null : prev + 1
           )
         }
-        className="absolute bottom-10 left-1/2 flex h-14 w-14 translate-x-[0.7rem] items-center justify-center rounded-2xl border border-white/20 bg-black/40 text-4xl text-white"
+        className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/25 bg-white/10 text-white backdrop-blur transition active:scale-95"
         aria-label="다음 사진"
       >
-        ›
+        <ChevronRight className="h-5 w-5" strokeWidth={2} />
       </button>
     )}
+  </div>
+
+</div>
   </div>
 )}
 
 {selectedMapImage && (
   <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-4">
+
+    {/* 닫기 */}
     <button
       type="button"
-      onClick={() => setSelectedMapImage(null)}
-      className="absolute right-5 top-5 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+      onClick={() => {
+        setSelectedMapImage(null);
+        setIsMapZoomEnabled(false);
+      }}
+      className="absolute right-5 top-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
       aria-label="닫기"
     >
       ×
     </button>
 
-    <div className="h-[85vh] w-full max-w-[430px] overflow-hidden">
-      <TransformWrapper
-        initialScale={1}
-        minScale={1}
-        maxScale={4}
-        centerOnInit
-        doubleClick={{ disabled: true }}
-        wheel={{ disabled: true }}
-        panning={{ velocityDisabled: true }}
-      >
-        <TransformComponent
-          wrapperClass="!h-full !w-full"
-          contentClass="!h-full !w-full"
+    <div className="relative flex h-[85vh] w-full max-w-[430px] flex-col">
+
+      {/* 약도 영역 */}
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        <TransformWrapper
+          initialScale={1}
+          minScale={1}
+          maxScale={4}
+          centerOnInit
+          doubleClick={{ disabled: true }}
+          wheel={{ disabled: true }}
+          panning={{
+            disabled: !isMapZoomEnabled,
+            velocityDisabled: true,
+          }}
+          pinch={{
+            disabled: !isMapZoomEnabled,
+          }}
         >
-          <img
-            src={selectedMapImage}
-            alt="약도 확대 보기"
-            className="h-full w-full object-contain"
-            draggable={false}
-          />
-        </TransformComponent>
-      </TransformWrapper>
+          <TransformComponent
+            wrapperClass="!h-full !w-full"
+            contentClass="!h-full !w-full"
+          >
+            <img
+              src={selectedMapImage}
+              alt="3층 약도"
+              className="h-full w-full object-contain"
+              draggable={false}
+            />
+          </TransformComponent>
+        </TransformWrapper>
+
+        {/* 확대 활성화 버튼 */}
+        {!isMapZoomEnabled && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setIsMapZoomEnabled(true)}
+              className="rounded-full bg-white/90 px-6 py-3 text-sm font-semibold text-stone-700 shadow-md backdrop-blur transition active:scale-[0.98]"
+            >
+              확대해서 보기
+            </button>
+          </div>
+        )}
+
+        {/* 확대 활성화 후 안내 */}
+        {isMapZoomEnabled && (
+          <p className="pointer-events-none absolute bottom-0 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/40 px-4 py-2 text-[11px] text-white/80 backdrop-blur">
+            약도를 확대해서 볼 수 있어요
+          </p>
+        )}
+      </div>
+
+      {/* 하단 저장 버튼 */}
+      <div className="flex shrink-0 justify-center pt-3">
+        <button
+          type="button"
+          onClick={downloadMapImage}
+          className="rounded-xl border border-white/20 bg-white/10 px-4 py-1 text-[13px] font-medium text-white shadow-sm backdrop-blur transition active:scale-[0.98]"
+        >
+          약도 저장하기
+        </button>
+      </div>
+
     </div>
   </div>
 )}
