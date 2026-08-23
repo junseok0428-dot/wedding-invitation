@@ -118,8 +118,8 @@ const wedding = {
   "/images/gallery24.jpg",
   "/images/gallery25.jpg",
   "/images/gallery26.jpg",
-  "/images/gallery27.jpg",
-  "/images/gallery28.jpg",
+  //"/images/gallery27.jpg",
+  //"/images/gallery28.jpg",
   //"/images/gallery29.jpg",
   //"/images/gallery30.jpg",
   ],
@@ -592,6 +592,7 @@ export default function MobileWeddingInvitation() {
   const [isMapZoomEnabled, setIsMapZoomEnabled] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 const [galleryIndex, setGalleryIndex] = useState(0);
+const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
 const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
 
 useEffect(() => {
@@ -652,6 +653,10 @@ const kakaoMapRef = useRef<HTMLDivElement | null>(null);
 const kakaoMapInstanceRef = useRef<any>(null);
 
 const [isMusicOn, setIsMusicOn] = useState(false);
+
+// 사용자가 음악 버튼을 직접 눌렀는지 기록
+const userEnabledMusicRef = useRef(false);
+
 const [isMapLocked, setIsMapLocked] = useState(true);
 
 const changeMapLock = (locked: boolean) => {
@@ -671,52 +676,35 @@ const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
     getTimeSinceFirstMet()
   );
 
-const tryPlayMusic = async () => {
+useEffect(() => {
   const audio = audioRef.current;
 
-  if (!audio) return false;
+  if (!audio) return;
 
-  try {
-    audio.volume = 0.35;
-    audio.muted = false;
-    await audio.play();
-    setIsMusicOn(true);
-    return true;
-  } catch {
-    setIsMusicOn(false);
-    return false;
-  }
-};
+  // 처음 접속 시 무조건 음악 OFF
+  audio.pause();
+  audio.currentTime = 0;
+  audio.muted = false;
 
-useEffect(() => {
-  let cleanupDone = false;
+  userEnabledMusicRef.current = false;
+  setIsMusicOn(false);
 
-  const unlockAndPlay = async () => {
-    const success = await tryPlayMusic();
-
-    if (!success || cleanupDone) return;
-
-    window.removeEventListener("pointerdown", unlockAndPlay);
-    window.removeEventListener("touchstart", unlockAndPlay);
-    window.removeEventListener("click", unlockAndPlay);
-    window.removeEventListener("scroll", unlockAndPlay);
+  // 모바일 브라우저가 이전 페이지 상태를 복원하는 경우에도 다시 OFF
+  const handlePageShow = () => {
+    if (!userEnabledMusicRef.current) {
+      audio.pause();
+      setIsMusicOn(false);
+    }
   };
 
-  void unlockAndPlay();
-
-  window.addEventListener("pointerdown", unlockAndPlay, { passive: true });
-  window.addEventListener("touchstart", unlockAndPlay, { passive: true });
-  window.addEventListener("click", unlockAndPlay);
-  window.addEventListener("scroll", unlockAndPlay, { passive: true });
+  window.addEventListener("pageshow", handlePageShow);
 
   return () => {
-    cleanupDone = true;
-    window.removeEventListener("pointerdown", unlockAndPlay);
-    window.removeEventListener("touchstart", unlockAndPlay);
-    window.removeEventListener("click", unlockAndPlay);
-    window.removeEventListener("scroll", unlockAndPlay);
+    window.removeEventListener("pageshow", handlePageShow);
   };
 }, []);
+
+
 
 useEffect(() => {
   if (!showQrModal) return;
@@ -952,7 +940,26 @@ const hideGuestbookEntry = async (id: number) => {
   setGuestbookEntries((data || []).slice(0, 3));
 };
 
+const tryPlayMusic = async () => {
+  const audio = audioRef.current;
 
+  if (!audio) return false;
+
+  // 음악 버튼을 직접 누른 경우가 아니면 재생 금지
+  if (!userEnabledMusicRef.current) {
+    return false;
+  }
+
+  try {
+    await audio.play();
+    setIsMusicOn(true);
+    return true;
+  } catch (error) {
+    console.error("배경음악 재생 실패:", error);
+    setIsMusicOn(false);
+    return false;
+  }
+};
 
 const toggleMusic = async () => {
   const audio = audioRef.current;
@@ -960,8 +967,17 @@ const toggleMusic = async () => {
   if (!audio) return;
 
   if (audio.paused) {
-    await tryPlayMusic();
+    // 음악 버튼을 직접 누른 경우에만 허용
+    userEnabledMusicRef.current = true;
+
+    const success = await tryPlayMusic();
+
+    if (!success) {
+      userEnabledMusicRef.current = false;
+    }
   } else {
+    userEnabledMusicRef.current = false;
+
     audio.pause();
     setIsMusicOn(false);
   }
@@ -1260,11 +1276,11 @@ const copyInvitationUrl = async () => {
     <div className="min-h-screen bg-[#e8dfd2] text-stone-800">
 
     <audio
-      ref={audioRef}
-      src="/audio/wedding-bgm.mp3"
-      loop
-      preload="auto"
-    />
+  ref={audioRef}
+  src="/audio/wedding-bgm.mp3"
+  loop
+  preload="metadata"
+/>
 
 
 
@@ -1550,9 +1566,12 @@ const copyInvitationUrl = async () => {
     </p>
   </div>
 
-  {/* 메인 갤러리는 항상 4장만 표시 */}
+  {/* 기본 4장 / 전체보기 시 모든 사진 */}
   <div className="mt-8 grid grid-cols-2 gap-3">
-    {wedding.gallery.slice(0, 4).map((src, index) => (
+    {(isGalleryExpanded
+      ? wedding.gallery
+      : wedding.gallery.slice(0, 4)
+    ).map((src, index) => (
       <GalleryImage
         key={src}
         src={src}
@@ -1562,18 +1581,36 @@ const copyInvitationUrl = async () => {
     ))}
   </div>
 
-  {/* 전체보기 → 1번 사진부터 팝업으로 시작 */}
-  {wedding.gallery.length > 0 && (
-    <div className="relative mt-8 flex justify-center">
+  <div className="relative mt-8 flex justify-center">
+    {!isGalleryExpanded ? (
       <button
         type="button"
-        onClick={() => setSelectedGalleryIndex(0)}
+        onClick={() => setIsGalleryExpanded(true)}
         className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm transition active:scale-[0.98]"
       >
         전체보기
       </button>
-    </div>
-  )}
+    ) : (
+      <button
+        type="button"
+        onClick={() => {
+          setIsGalleryExpanded(false);
+
+          setTimeout(() => {
+            document
+              .querySelector("#gallery-section")
+              ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+          }, 50);
+        }}
+        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm transition active:scale-[0.98]"
+      >
+        갤러리 접기
+      </button>
+    )}
+  </div>
 </Section>
 
 
@@ -1690,7 +1727,7 @@ const copyInvitationUrl = async () => {
     </div>
   </div>
 
-<div className="mt-5 rounded-[2rem] bg-white p-6 text-left shadow-sm">
+<div className="mt-5 rounded-[2rem] bg-white p-5 text-left shadow-sm">
   {[
     {
       title: "지하철",
@@ -1702,14 +1739,18 @@ const copyInvitationUrl = async () => {
     },
     {
       title: "자가용",
-      text: "강변테크노마트 지하주차장\n2시간 무료",
+      text: "강변테크노마트 지하주차장 [2,000대 주차가능]\n2시간 무료",
+    },
+    {
+      title: "연회장 이용가능시간",
+      text: "오후 2시 40분 - 4시 40분 [2시간]",
     },
   ].map((item, index) => (
     <div
       key={item.title}
       className={`${
         index !== 0 ? "border-t border-stone-100 pt-4" : ""
-      } ${index !== 2 ? "pb-4" : ""}`}
+      } ${index !== 3 ? "pb-4" : ""}`}
     >
       <p className="text-[15px] font-semibold tracking-[0.02em] text-[#9a7a63]">
        {item.title}
@@ -2311,7 +2352,9 @@ const copyInvitationUrl = async () => {
 
 {showQrModal && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/75 px-6">
-    <div className="relative w-full max-w-[360px] rounded-[30px] bg-[#f8dede] p-5 text-center shadow-2xl">
+    <div className="relative w-full max-w-[360px] rounded-[30px] bg-[#fbf8f3] p-5 text-center shadow-2xl">
+
+      {/* 우측 상단 닫기 */}
       <button
         type="button"
         onClick={() => setShowQrModal(false)}
@@ -2321,50 +2364,48 @@ const copyInvitationUrl = async () => {
         ×
       </button>
 
+      {/* 네모 QR 프리뷰 */}
       <img
-  src="/images/qr-preview-heart.png"
-  alt="하트 QR 코드"
-  className="mx-auto mt-5 h-[300px] w-[300px] rounded-2xl object-contain"
-/>
+        src="/images/qr-preview.png"
+        alt="청첩장 QR 코드"
+        draggable={false}
+        onContextMenu={(event) => event.preventDefault()}
+        className="mx-auto mt-6 h-[300px] w-[300px] rounded-2xl object-contain"
+      />
 
-      <p className="mt-4 text-sm leading-6 text-[#7d5f5f]">
+      <p className="mt-0 text-sm leading-8 text-[#7d5f5f]">
         청첩장 QR 코드
       </p>
 
-      <div className="mt-5 grid grid-cols-3 gap-3">
-        <button
-          type="button"
-          onClick={() => setShowQrModal(false)}
-          className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
-        >
-          닫기
-        </button>
+      {/* 하단 버튼 2개 */}
+      <div className="mt-5 grid grid-cols-2 gap-3">
 
         <button
           type="button"
           onClick={() => {
-  const link = document.createElement("a");
-  link.href = "/images/junseok♡seonyoung-qr.png";
-  link.download = "junseok♡seonyoung-qr.png";
-  link.click();
-}}
-          className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
+            const link = document.createElement("a");
+
+            link.href =
+              "/images/junseok♡seonyoung-qr.png";
+
+            link.download =
+              "junseok♡seonyoung-qr.png";
+
+            link.click();
+          }}
+          className="rounded-xl bg-[#5b1717]/10 px-1 py-3 text-sm text-[#5b1717]"
         >
           ■ QR저장
         </button>
 
-        <button
+                <button
           type="button"
-          onClick={() => {
-  const link = document.createElement("a");
-  link.href = "/images/junseok♡seonyoung-heart-qr.png";
-  link.download = "junseok♡seonyoung-heart-qr.png";
-  link.click();
-}}
-          className="rounded-xl bg-white/55 px-2 py-3 text-sm text-[#5b1717]"
+          onClick={() => setShowQrModal(false)}
+          className="rounded-xl bg-[#5b1717]/10 px-1 py-3 text-sm text-[#5b1717]"
         >
-          ♥ QR저장
+          닫기
         </button>
+
       </div>
     </div>
   </div>
