@@ -117,9 +117,9 @@ const wedding = {
   "/images/gallery23.jpg",
   "/images/gallery24.jpg",
   "/images/gallery25.jpg",
-  //"/images/gallery26.jpg",
-  //"/images/gallery27.jpg",
-  //"/images/gallery28.jpg",
+  "/images/gallery26.jpg",
+  "/images/gallery27.jpg",
+  "/images/gallery28.jpg",
   //"/images/gallery29.jpg",
   //"/images/gallery30.jpg",
   ],
@@ -1897,25 +1897,33 @@ const copyInvitationUrl = async () => {
 </Section>
 
 <section className="relative min-h-screen overflow-hidden bg-stone-900">
-  {/* 엔딩 배경 이미지 */}
-  <div className="absolute inset-0">
-    <ImageBox
-      src={wedding.endingImage}
-      alt="엔딩 사진"
-      className="h-full w-full"
-    />
-  </div>
+  {/* 엔딩 배경 영상 */}
+<div className="absolute inset-0 overflow-hidden bg-black">
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    preload="metadata"
+    poster={wedding.endingImage}
+    className="h-full w-full object-cover"
+  >
+    <source src="/videos/ending.mp4" type="video/mp4" />
+  </video>
+</div>
 
   {/* 어두운 오버레이 */}
   <div className="absolute inset-0 bg-black/50" />
 
   {/* 엔딩 콘텐츠 */}
-  <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-10 pt-15 text-center text-white">
+  <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-10 pt-20 text-center text-white">
 
     {/* 상단 문구 */}
     <div className="flex flex-col items-center">
       <p className="font-serif text-2xl leading-[1.5] drop-shadow-md">
-        저희의 새로운 시작을 함께 해주셔서 
+        저희의 새로운 시작을
+        <br />
+        함께 해주셔서 
         <br />
         감사합니다
       </p>
