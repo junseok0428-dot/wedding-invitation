@@ -4,7 +4,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-import { createClient } from "@supabase/supabase-js";
+
 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import {
@@ -38,22 +38,13 @@ import {
 
 import QRCode from "qrcode";
 
-type GuestbookEntry = {
-  id: number;
-  name: string;
-  message: string;
-  created_at: string;
-};
+
 
 const KAKAO_JAVASCRIPT_KEY =
   process.env.NEXT_PUBLIC_KAKAO_JS_KEY || "";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const GUESTBOOK_ADMIN_PASSWORD = "0221";
 const wedding = {
   groom: "강준석",
   bride: "윤선영",
@@ -84,7 +75,7 @@ const wedding = {
   googleMapUrl: "https://www.google.com/maps?sca_esv=1dc58019ac9a4f8a&output=search&q=%EC%9B%A8%EB%94%A9%EC%8A%A4%ED%80%98%EC%96%B4&source=lnms&fbs=ADc_l-bD_nyrjATWBKup7flJ4rea5XFXsPHwMjGsTekJ1HCohBAQ3Hh19DqzlO7wr7YUgTdahuWH974VvSrJs4RQ62KmPakfWcC3PxowH7Qj6U35JfBSoRBAl27CH7o7NicNO6jPYwrbO3-KLu-p6GaC8OMuIWRlspfJasw6AD_0JlwcO_ezT0l8LoAUnAiDGYZhqbvO4u-0rYioEum0W6761pE9KqBTX_ru_NEiTXDKeLnCjlz0JnA&entry=mc&ved=1t:200715&ictx=111",
   heroImage: "/images/main-start.JPG",
   middleImage: "/images/gallery2.jpg",
-  endingImage: "/images/main-end.jpg",
+  endingImage: "/images/ending.gif",
   mainGallery: [
   "/images/gallery1.jpg",
   "/images/gallery2.jpg",
@@ -495,25 +486,33 @@ function ImageBox({
   alt,
   className = "",
   contain = false,
+  priority = false,
 }: {
   src: string;
   alt: string;
   className?: string;
   contain?: boolean;
+  priority?: boolean;
 }) {
+
   const [imageError, setImageError] = useState(false);
 
   return (
     <div className={`relative overflow-hidden bg-stone-200 ${className}`}>
       {!imageError ? (
         <img
-          src={src}
-          alt={alt}
-          draggable={false}
-          onContextMenu={(event) => event.preventDefault()}
-          className={`h-full w-full ${contain ? "object-contain" : "object-cover"}`}
-          onError={() => setImageError(true)}
-        />
+  src={src}
+  alt={alt}
+  loading={priority ? "eager" : "lazy"}
+  fetchPriority={priority ? "high" : "auto"}
+  decoding={priority ? "sync" : "async"}
+  draggable={false}
+  onContextMenu={(event) => event.preventDefault()}
+  className={`h-full w-full ${
+    contain ? "object-contain" : "object-cover"
+  }`}
+  onError={() => setImageError(true)}
+/>
       ) : (
         <div className="flex h-full min-h-[180px] w-full items-center justify-center text-stone-400">
           <ImageIcon className="h-8 w-8" />
@@ -587,13 +586,28 @@ export default function MobileWeddingInvitation() {
   const [copied, setCopied] = useState("");
   const [showAccountModal, setShowAccountModal] = useState(false);
   const [openAccountSide, setOpenAccountSide] = useState<"groom" | "bride" | null>(null);
-  const [showGuestbookModal, setShowGuestbookModal] = useState(false);
+ 
   const [selectedMapImage, setSelectedMapImage] = useState<string | null>(null);
   const [isMapZoomEnabled, setIsMapZoomEnabled] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 const [galleryIndex, setGalleryIndex] = useState(0);
 const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
 const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
+
+useEffect(() => {
+  const preloadImages = [
+    "/images/gallery1.jpg",
+    "/images/gallery2.jpg",
+    "/images/gallery3.jpg",
+    "/images/gallery4.jpg",
+    "/images/ending.gif",
+  ];
+
+  preloadImages.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}, []);
 
 useEffect(() => {
   const blockSave = (event: Event) => {
@@ -643,10 +657,7 @@ const touchEndY = useRef<number | null>(null);
 const [showGalleryHint, setShowGalleryHint] = useState(true);
 const [showGalleryControls, setShowGalleryControls] = useState(true);
 
-  const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([]);
-  const [allGuestbookEntries, setAllGuestbookEntries] = useState<GuestbookEntry[]>([]);
-const [guestName, setGuestName] = useState("");
-const [guestMessage, setGuestMessage] = useState("");
+ 
 
 const audioRef = useRef<HTMLAudioElement | null>(null);
 const kakaoMapRef = useRef<HTMLDivElement | null>(null);
@@ -670,7 +681,7 @@ const changeMapLock = (locked: boolean) => {
   map.setZoomable(!locked);
 };
 
-const [isSubmittingGuestbook, setIsSubmittingGuestbook] = useState(false);
+
 
   const [timeSinceFirstMet, setTimeSinceFirstMet] = useState(
     getTimeSinceFirstMet()
@@ -767,11 +778,10 @@ useEffect(() => {
 
 useEffect(() => {
   const isAnyModalOpen =
-  selectedImageIndex !== null ||
-  selectedGalleryIndex !== null ||
-  selectedMapImage !== null ||
-  showAccountModal ||
-  showGuestbookModal;
+    selectedImageIndex !== null ||
+    selectedGalleryIndex !== null ||
+    selectedMapImage !== null ||
+    showAccountModal;
 
   const originalBodyOverflow = document.body.style.overflow;
   const originalHtmlOverflow = document.documentElement.style.overflow;
@@ -790,51 +800,9 @@ useEffect(() => {
   selectedGalleryIndex,
   selectedMapImage,
   showAccountModal,
-  showGuestbookModal,
 ]);
 
-  useEffect(() => {
-  if (!supabaseUrl || !supabaseAnonKey) return;
 
-  const loadGuestbook = async () => {
-    const { data, error } = await supabase
-      .from("guestbook")
-      .select("id, name, message, created_at, is_hidden")
-      .eq("is_hidden", false)
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    const visibleData = data || [];
-
-    setAllGuestbookEntries(visibleData);
-    setGuestbookEntries(visibleData.slice(0, 3));
-  };
-
-  loadGuestbook();
-
-  const channel = supabase
-    .channel("guestbook-realtime")
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "guestbook",
-      },
-      () => {
-        loadGuestbook();
-      }
-    )
-    .subscribe();
-
-  return () => {
-    supabase.removeChannel(channel);
-  };
-}, []);
 
 const [timeUntilWedding, setTimeUntilWedding] = useState({
   hours: 0,
@@ -856,89 +824,9 @@ const [timeUntilWedding, setTimeUntilWedding] = useState({
     }
   };
 
-const submitGuestbook = async () => {
-  const name = guestName.trim();
-  const message = guestMessage.trim();
 
-  if (!name) {
-    alert("성함을 입력해주세요.");
-    return;
-  }
 
-  if (!message) {
-    alert("축하 메시지를 입력해주세요.(비방, 욕설 등의 글은 임의로 삭제되며 형사처벌의 대상이 될 수 있습니다.)");
-    return;
-  }
 
-  if (name.length > 20) {
-    alert("20자 이내로 입력해주세요.");
-    return;
-  }
-
-  if (message.length > 300) {
-    alert("메시지는 300자 이내로 입력해주세요.");
-    return;
-  }
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    alert("방명록 설정이 아직 완료되지 않았어요.");
-    return;
-  }
-
-  try {
-    setIsSubmittingGuestbook(true);
-
-    const { error } = await supabase.from("guestbook").insert({
-      name,
-      message,
-    });
-
-    if (error) {
-      throw error;
-    }
-
-    setGuestName("");
-    setGuestMessage("");
-    alert("방명록이 등록되었습니다.");
-  } catch (error) {
-    console.error(error);
-    alert("방명록 등록 중 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
-  } finally {
-    setIsSubmittingGuestbook(false);
-  }
-};
-
-const hideGuestbookEntry = async (id: number) => {
-  const password = prompt("관리자 비밀번호를 입력해주세요.");
-
-  if (password === null) return;
-
-  if (password !== GUESTBOOK_ADMIN_PASSWORD) {
-    alert("비밀번호가 틀렸습니다.");
-    return;
-  }
-
-  const { error } = await supabase
-    .from("guestbook")
-    .update({ is_hidden: true })
-    .eq("id", id);
-
-  if (error) {
-    console.error(error);
-    alert("숨김 처리 중 오류가 발생했어요.");
-    return;
-  }
-
-  const { data } = await supabase
-    .from("guestbook")
-    .select("id, name, message, created_at, is_hidden")
-    .eq("is_hidden", false)
-    .order("created_at", { ascending: false });
-    
-
-  setAllGuestbookEntries(data || []);
-  setGuestbookEntries((data || []).slice(0, 3));
-};
 
 const tryPlayMusic = async () => {
   const audio = audioRef.current;
@@ -1222,7 +1110,7 @@ const downloadQr = async (type: "heart" | "normal") => {
 
 const shareInvitation = () => {
   const invitationUrl = "https://junseok-seonyoung-wedding.vercel.app";
-  const imageUrl = invitationUrl + "/images/kakao-share.JPG";
+  const imageUrl = invitationUrl + "/images/kakao-share-v2.JPG";
 
   // kakao SDK가 로드되지 않았을 경우 링크 복사 안내
   if (!window.Kakao) {
@@ -1301,10 +1189,11 @@ const copyInvitationUrl = async () => {
 
           <div className="absolute inset-0">
             <ImageBox
-              src={wedding.heroImage}
-              alt="메인 웨딩 사진"
-              className="h-full w-full"
-            />
+  src={wedding.heroImage}
+  alt="메인 웨딩 사진"
+  className="h-full w-full"
+  priority
+/>
             <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/5 to-black/70" />
           </div>
 
@@ -1764,100 +1653,7 @@ const copyInvitationUrl = async () => {
 </Section>
 
 
-        <Section>
-  <div className="text-center">
-    <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-      GUESTBOOK
-    </p>
-  </div>
 
-  <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
-    <div className="space-y-3">
-      <input
-        value={guestName}
-        onChange={(event) => setGuestName(event.target.value)}
-        maxLength={20}
-        placeholder="이름"
-        className="w-full rounded-2xl bg-stone-50 px-4 py-3 text-sm outline-none ring-1 ring-stone-100 focus:ring-stone-300"
-      />
-
-      <textarea
-        value={guestMessage}
-        onChange={(event) => setGuestMessage(event.target.value)}
-        maxLength={300}
-        rows={4}
-        placeholder="축하 메시지를 입력해주세요."
-        className="w-full resize-none rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 outline-none ring-1 ring-stone-100 focus:ring-stone-300"
-      />
-
-      <div className="flex items-center justify-between text-xs text-stone-400">
-        <span>최대 300자</span>
-        <span>{guestMessage.length}/300</span>
-      </div>
-
-      <button
-        type="button"
-        onClick={submitGuestbook}
-        disabled={isSubmittingGuestbook}
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-stone-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
-      >
-        <MessageCircle className="h-4 w-4" />
-        {isSubmittingGuestbook ? "등록 중..." : "방명록 남기기"}
-      </button>
-    </div>
-  </div>
-
-  <div className="mt-7 space-y-3">
-    {guestbookEntries.length === 0 ? (
-      <div className="rounded-[1.7rem] bg-white p-5 text-center text-sm text-stone-400 shadow-sm">
-        아직 등록된 방명록이 없습니다.
-      </div>
-    ) : (
-      guestbookEntries.map((item) => (
-        <div
-  key={item.id}
-  className="relative rounded-[1.7rem] bg-white p-5 shadow-sm"
->
-  <button
-    type="button"
-    onClick={() => hideGuestbookEntry(item.id)}
-    className="absolute right-5 top-5 text-lg leading-none text-stone-300"
-    aria-label="방명록 숨기기"
-  >
-    ×
-  </button>
-          <p className="text-xs tracking-[0.22em] text-stone-400">
-            from.
-          </p>
-          <p className="mt-1 font-semibold">{item.name}</p>
-          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-600">
-            {item.message}
-          </p>
-          <p className="mt-3 text-xs text-stone-400">
-            {new Date(item.created_at).toLocaleString("ko-KR", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-        </div>
-      ))
-    )}
-  </div>
-
-{guestbookEntries.length > 0 && (
-  <button
-    type="button"
-    onClick={() => setShowGuestbookModal(true)}
-    className="mt-5 flex w-full items-center justify-center rounded-full border border-stone-200 bg-white px-5 py-4 text-sm font-semibold text-stone-600 shadow-sm"
-  >
-    방명록 전체보기
-  </button>
-)}
-
-</Section>
 
 <Section className="text-center">
   <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
@@ -1938,19 +1734,15 @@ const copyInvitationUrl = async () => {
 </Section>
 
 <section className="relative min-h-screen overflow-hidden bg-stone-900">
-  {/* 엔딩 배경 영상 */}
+
+{/* 엔딩 배경 GIF */}
 <div className="absolute inset-0 overflow-hidden bg-black">
-  <video
-    autoPlay
-    muted
-    loop
-    playsInline
-    preload="metadata"
-    poster={wedding.endingImage}
-    className="h-full w-full object-cover"
-  >
-    <source src="/videos/ending.mp4" type="video/mp4" />
-  </video>
+  <img
+  src={wedding.endingImage}
+  alt="엔딩 웨딩 이미지"
+  draggable={false}
+  className="h-full w-full object-cover object-bottom"
+/>
 </div>
 
   {/* 어두운 오버레이 */}
@@ -2411,67 +2203,7 @@ const copyInvitationUrl = async () => {
   </div>
 )}
 
-{showGuestbookModal && (
-  <div
-    className="fixed inset-0 z-[1000] overscroll-contain bg-black/70 px-5 py-8"
-    onClick={() => setShowGuestbookModal(false)}
-  >
-    <div
-      className="mx-auto flex h-full max-w-[390px] flex-col rounded-[2rem] bg-[#fbf8f3] p-5 shadow-2xl"
-      onClick={(event) => event.stopPropagation()}
-    >
-      <button
-        type="button"
-        onClick={() => setShowGuestbookModal(false)}
-        className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl text-stone-500 shadow-sm"
-        aria-label="닫기"
-      >
-        ×
-      </button>
 
-      <div className="text-center">
-        <p className="mb-3 text-xs tracking-[0.28em] text-stone-400">
-          GUESTBOOK
-        </p>
-        <h2 className="font-serif text-2xl">방명록 전체보기</h2>
-      </div>
-
-      <div className="mt-6 flex-1 space-y-3 overflow-y-auto pr-1">
-        {allGuestbookEntries.map((item) => (
-          <div
-  key={item.id}
-  className="relative rounded-[1.7rem] bg-white p-5 shadow-sm"
->
-  <button
-    type="button"
-    onClick={() => hideGuestbookEntry(item.id)}
-    className="absolute right-5 top-5 text-lg leading-none text-stone-300"
-    aria-label="방명록 숨기기"
-  >
-    ×
-  </button>
-            <p className="text-xs tracking-[0.22em] text-stone-400">
-              from.
-            </p>
-            <p className="mt-1 font-semibold">{item.name}</p>
-            <p className="mt-3 whitespace-pre-line text-sm leading-6 text-stone-600">
-              {item.message}
-            </p>
-            <p className="mt-3 text-xs text-stone-400">
-              {new Date(item.created_at).toLocaleString("ko-KR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-)}
 
 
 
