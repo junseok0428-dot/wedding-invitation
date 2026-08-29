@@ -77,6 +77,7 @@ const wedding = {
   heroImage: "/images/main-start.JPG",
   middleImage: "/images/gallery2.jpg",
   endingImage: "/images/ending.gif",
+  endingFallbackImage: "/images/ending-fallback.jpg",
   mainGallery: [
   "/images/gallery1.jpg",
   "/images/gallery2.jpg",
@@ -1870,15 +1871,28 @@ const copyInvitationUrl = async () => {
 
 <section className="relative h-[100svh] overflow-hidden bg-stone-900">
 
-  {/* 엔딩 배경 GIF */}
-  <div className="absolute inset-0 overflow-hidden bg-black">
-    <img
-      src={wedding.endingImage}
-      alt="엔딩 웨딩 이미지"
-      draggable={false}
-      className="h-full w-full object-cover object-bottom"
-    />
-  </div>
+  {/* 엔딩 배경 - 백업 정지사진 */}
+<div className="absolute inset-0 overflow-hidden bg-black">
+  <img
+    src={wedding.endingFallbackImage}
+    alt=""
+    draggable={false}
+    className="h-full w-full object-cover object-bottom"
+  />
+</div>
+
+{/* 엔딩 배경 GIF - 정상 작동하면 정지사진 위에 표시 */}
+<div className="absolute inset-0 overflow-hidden">
+  <img
+    src={wedding.endingImage}
+    alt="엔딩 웨딩 이미지"
+    draggable={false}
+    className="h-full w-full object-cover object-bottom"
+    onError={(event) => {
+      event.currentTarget.style.display = "none";
+    }}
+  />
+</div>
 
   {/* 어두운 오버레이 */}
   <div className="absolute inset-0 bg-black/50" />
