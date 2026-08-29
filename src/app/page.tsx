@@ -1482,9 +1482,7 @@ const copyInvitationUrl = async () => {
 );
   })}
 </div>
-
-
-          </div>
+</div>
 
           <motion.div
             variants={stagger}
@@ -1638,9 +1636,14 @@ const copyInvitationUrl = async () => {
       text: "2호선 강변역 강변테크노마트 판매동 B1 연결",
     },
     {
-      title: "버스",
-      text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11,\n 15, 93, 112-1, 2000-1, 3212",
-    },
+  title: "버스",
+  text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11,\n15, 93, 112-1, 2000-1, 3212",
+},
+{
+  title: "고속 · 시외버스",
+  text: "동서울종합터미널 하차 후 도보 약 3분",
+},
+
     {
       title: "자가용",
       text: "강변테크노마트 지하주차장 [2,000대 주차가능]\n2시간 무료",
@@ -1651,7 +1654,7 @@ const copyInvitationUrl = async () => {
       key={item.title}
       className={`${
         index !== 0 ? "border-t border-stone-100 pt-4" : ""
-      } ${index !== 2 ? "pb-4" : ""}`}
+      } ${index !== 3 ? "pb-4" : ""}`}
     >
       <p className="text-[15px] font-semibold tracking-[0.02em] text-[#9a7a63]">
        {item.title}
