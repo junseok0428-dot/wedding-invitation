@@ -52,7 +52,8 @@ const wedding = {
   weddingDateISO: "2027-01-30T15:10:00",
   firstMetDateISO: "2026-02-18T00:00:00",
   time: "오후 3시 10분",
-  secondTime: "오후 2시 40분",
+  receptionStartTime: "오후 2시 40분",
+  receptionEndTime: "오후 4시 40분",
   venue: "베니르홀",
   hall: "웨딩스퀘어 강변",
   address: "서울 광진구\n광나루로56길 85,\n테크노마트 3층",
@@ -109,8 +110,8 @@ const wedding = {
   "/images/gallery24.jpg",
   "/images/gallery25.jpg",
   "/images/gallery26.jpg",
-  //"/images/gallery27.jpg",
-  //"/images/gallery28.jpg",
+  "/images/gallery27.jpg",
+  "/images/gallery28.jpg",
   //"/images/gallery29.jpg",
   //"/images/gallery30.jpg",
   ],
@@ -559,26 +560,22 @@ function GalleryImage({
   onClick: () => void;
 }) {
   return (
-    <motion.button
+    <button
       type="button"
       onClick={onClick}
-      initial={{ opacity: 0, scale: 0.96, y: 18 }}
-      whileInView={{ opacity: 1, scale: 1, y: 0 }}
-      viewport={{ once: false }}
-      transition={{ delay: index * 0.08, duration: 0.55 }}
       className="relative overflow-hidden rounded-[1.4rem] bg-stone-100 shadow-sm"
     >
       <img
-  src={src}
-  alt={`갤러리 사진 ${index + 1}`}
-  loading="lazy"
-  decoding="async"
-  draggable={false}
-  onContextMenu={(event) => event.preventDefault()}
-  onDragStart={(event) => event.preventDefault()}
-  className="pointer-events-none h-[300px] w-full select-none object-cover"
-/>
-    </motion.button>
+        src={src}
+        alt={`갤러리 사진 ${index + 1}`}
+        loading="eager"
+        decoding="async"
+        draggable={false}
+        onContextMenu={(event) => event.preventDefault()}
+        onDragStart={(event) => event.preventDefault()}
+        className="pointer-events-none h-[300px] w-full select-none object-cover"
+      />
+    </button>
   );
 }
 
@@ -591,8 +588,35 @@ export default function MobileWeddingInvitation() {
   const [isMapZoomEnabled, setIsMapZoomEnabled] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 const [galleryIndex, setGalleryIndex] = useState(0);
-const [isGalleryExpanded, setIsGalleryExpanded] = useState(false);
+
 const [selectedGalleryIndex, setSelectedGalleryIndex] = useState<number | null>(null);
+const GALLERY_PER_PAGE = 4;
+
+const galleryTotalPages = Math.ceil(
+  wedding.gallery.length / GALLERY_PER_PAGE
+);
+
+const galleryPageStart = galleryIndex * GALLERY_PER_PAGE;
+
+const galleryPageImages = wedding.gallery.slice(
+  galleryPageStart,
+  galleryPageStart + GALLERY_PER_PAGE
+);
+
+
+useEffect(() => {
+  const start = galleryIndex * GALLERY_PER_PAGE;
+
+  const preloadTargets = wedding.gallery.slice(
+    start,
+    start + GALLERY_PER_PAGE * 2
+  );
+
+  preloadTargets.forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}, [galleryIndex]);
 
 useEffect(() => {
   const preloadImages = [
@@ -802,7 +826,26 @@ useEffect(() => {
   showAccountModal,
 ]);
 
+useEffect(() => {
+  if (selectedGalleryIndex === null) return;
 
+  const preloadIndexes = [
+    selectedGalleryIndex - 2,
+    selectedGalleryIndex - 1,
+    selectedGalleryIndex + 1,
+    selectedGalleryIndex + 2,
+  ];
+
+  preloadIndexes.forEach((index) => {
+    if (
+      index >= 0 &&
+      index < wedding.gallery.length
+    ) {
+      const img = new Image();
+      img.src = wedding.gallery[index];
+    }
+  });
+}, [selectedGalleryIndex]);
 
 const [timeUntilWedding, setTimeUntilWedding] = useState({
   hours: 0,
@@ -1185,7 +1228,7 @@ const copyInvitationUrl = async () => {
     </button>
 
       <main className="mx-auto min-h-screen max-w-[430px] overflow-hidden bg-[#fbf8f3] shadow-2xl">
-        <section className="relative min-h-screen overflow-hidden bg-stone-900">
+        <section className="relative min-h-[100svh] overflow-hidden bg-stone-900">
 
           <div className="absolute inset-0">
             <ImageBox
@@ -1201,7 +1244,7 @@ const copyInvitationUrl = async () => {
   initial={{ opacity: 0, y: 18 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.9 }}
-  className="relative z-10 flex min-h-screen flex-col items-center justify-between px-7 pb-3 pt-14 text-center text-white"
+  className="relative z-10 flex min-h-[100svh] flex-col items-center justify-between px-7 pb-3 pt-14 text-center text-white"
 >
   {/* 상단 */}
 <div className="flex flex-col items-center">
@@ -1288,7 +1331,7 @@ const copyInvitationUrl = async () => {
 
         <Section className="text-center">
           <div className="absolute left-8 top-7 text-stone-200">
-            <Sparkles className="h-7 w-7" />
+
           </div>
 
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
@@ -1332,24 +1375,74 @@ const copyInvitationUrl = async () => {
 
         </Section>
 
+
+{/* 예식 안내 */}
+<Section className="bg-[#fbf8f3] text-center">
+
+  <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+    WEDDING INFORMATION
+  </p>
+
+  <Divider />
+
+  <div className="mt-4 overflow-hidden rounded-[2rem] bg-white px-6 shadow-sm">
+
+    {/* 예식 기본 정보 */}
+    <div className="py-7">
+
+      <h2 className="font-semibold text-[22px] text-[#9a7a63]">
+        예식 안내
+      </h2>
+
+      <p className="mt-3 text-[16px] leading-7 text-stone-500">
+        2027년 1월 30일 토요일 {wedding.time}
+      </p>
+
+      <p className="mt-1 text-[17px] text-stone-800">
+        {wedding.hall} · 3층 {wedding.venue}
+      </p>
+
+    </div>
+
+    {/* 구분선 */}
+    <div className="h-px w-full bg-stone-100" />
+
+    {/* 연회장 이용시간 */}
+    <div className="py-6">
+
+      <p className="text-[14px] font-semibold text-[#9a7a63]">
+        연회장 이용시간
+      </p>
+
+      <p className="mt-2 text-[14px] text-stone-700">
+        {wedding.receptionStartTime} - {wedding.receptionEndTime}
+      </p>
+
+      <p className="mt-1 text-[12px] text-stone-400">
+        2시간 이용
+      </p>
+
+    </div>
+
+  </div>
+
+</Section>
+
         <Section className="bg-[#fbf8f3] text-center">
-
-
           <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
             WEDDING DAY
           </p>
-<h2 className="font-serif text-3xl">
-  {calendar.year}. {String(calendar.month).padStart(2, "0")}. 30.
-
-</h2>
 
 
 
 
           <div className="mt-8 rounded-[2rem] bg-white p-5 shadow-sm">
             
+<p className="font-serif text-2xl">
+  {calendar.year}. {String(calendar.month).padStart(2, "0")}.
+</p>
 
-           <div className="mb-3 grid grid-cols-7 text-center text-xs">
+<div className="mt-5 mb-3 grid grid-cols-7 text-center text-xs">
   {["일", "월", "화", "수", "목", "금", "토"].map((day, index) => (
     <span
       key={day}
@@ -1448,62 +1541,6 @@ const copyInvitationUrl = async () => {
 
 
 
-<Section>
-  <div id="gallery-section" className="text-center">
-    <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
-      GALLERY
-    </p>
-  </div>
-
-  {/* 기본 4장 / 전체보기 시 모든 사진 */}
-  <div className="mt-8 grid grid-cols-2 gap-3">
-    {(isGalleryExpanded
-      ? wedding.gallery
-      : wedding.gallery.slice(0, 4)
-    ).map((src, index) => (
-      <GalleryImage
-        key={src}
-        src={src}
-        index={index}
-        onClick={() => setSelectedGalleryIndex(index)}
-      />
-    ))}
-  </div>
-
-  <div className="relative mt-8 flex justify-center">
-    {!isGalleryExpanded ? (
-      <button
-        type="button"
-        onClick={() => setIsGalleryExpanded(true)}
-        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm transition active:scale-[0.98]"
-      >
-        전체보기
-      </button>
-    ) : (
-      <button
-        type="button"
-        onClick={() => {
-          setIsGalleryExpanded(false);
-
-          setTimeout(() => {
-            document
-              .querySelector("#gallery-section")
-              ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-          }, 50);
-        }}
-        className="rounded-2xl border border-stone-300 bg-white/90 px-8 py-3 text-sm text-stone-600 shadow-sm transition active:scale-[0.98]"
-      >
-        갤러리 접기
-      </button>
-    )}
-  </div>
-</Section>
-
-
-
 <Section className="bg-[#fbf8f3] text-center">
   <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
     LOCATION
@@ -1521,12 +1558,12 @@ const copyInvitationUrl = async () => {
         <button
   type="button"
   onClick={() => changeMapLock(false)}
-  className="rounded-full bg-white/65 px-6 py-3 text-sm font-semibold text-stone-700 shadow-sm backdrop-blur-[2px]"
+  className="rounded-full bg-stone-700/70 px-6 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur-[2px]"
 >
   지도 보기
 </button>
 
-<p className="mt-3 rounded-full bg-white/45 px-3 py-1 text-[11px] text-stone-500 shadow-sm backdrop-blur-[2px]">
+<p className="mt-3 rounded-full bg-stone-700/50 px-3 py-1 text-[11px] text-white shadow-sm backdrop-blur-[2px]">
   터치하면 지도를 움직일 수 있어요
 </p>
       </div>
@@ -1616,7 +1653,7 @@ const copyInvitationUrl = async () => {
     </div>
   </div>
 
-<div className="mt-5 rounded-[2rem] bg-white p-5 text-left shadow-sm">
+<div className="mt-5 rounded-[2rem] bg-white p-5 text-center shadow-sm">
   {[
     {
       title: "지하철",
@@ -1630,16 +1667,13 @@ const copyInvitationUrl = async () => {
       title: "자가용",
       text: "강변테크노마트 지하주차장 [2,000대 주차가능]\n2시간 무료",
     },
-    {
-      title: "연회장 이용가능시간",
-      text: "오후 2시 40분 - 4시 40분 [2시간]",
-    },
+
   ].map((item, index) => (
     <div
       key={item.title}
       className={`${
         index !== 0 ? "border-t border-stone-100 pt-4" : ""
-      } ${index !== 3 ? "pb-4" : ""}`}
+      } ${index !== 2 ? "pb-4" : ""}`}
     >
       <p className="text-[15px] font-semibold tracking-[0.02em] text-[#9a7a63]">
        {item.title}
@@ -1655,6 +1689,107 @@ const copyInvitationUrl = async () => {
 
 
 
+<Section>
+  <div id="gallery-section" className="text-center">
+    <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
+      GALLERY
+    </p>
+  </div>
+
+  {/* 현재 페이지 사진 4장 */}
+  <div className="mt-8 grid grid-cols-2 gap-3">
+    {galleryPageImages.map((src, localIndex) => {
+      const actualIndex =
+        galleryPageStart + localIndex;
+
+      return (
+        <GalleryImage
+          key={src}
+          src={src}
+          index={actualIndex}
+          onClick={() =>
+            setSelectedGalleryIndex(actualIndex)
+          }
+        />
+      );
+    })}
+  </div>
+
+  {/* 페이지 이동 컨트롤 */}
+  <div className="mt-8 grid grid-cols-[48px_128px_48px] items-center justify-center gap-3">
+
+    {/* 이전 페이지 */}
+    <div className="flex h-12 w-12 items-center justify-center">
+      {galleryIndex > 0 && (
+        <button
+          type="button"
+          onClick={() =>
+            setGalleryIndex((prev) =>
+              Math.max(prev - 1, 0)
+            )
+          }
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-stone-300 bg-white text-stone-600 shadow-sm transition active:scale-95"
+          aria-label="이전 갤러리"
+        >
+          <ChevronLeft
+            className="h-5 w-5"
+            strokeWidth={2}
+          />
+        </button>
+      )}
+    </div>
+
+    {/* 전체보기 + 페이지 */}
+    <button
+      type="button"
+      onClick={() =>
+        setSelectedGalleryIndex(
+          galleryPageStart
+        )
+      }
+      className="flex h-12 w-[128px] items-center justify-center gap-2 rounded-2xl border border-stone-300 bg-white px-3 text-stone-600 shadow-sm transition active:scale-[0.98]"
+    >
+
+      <span className="text-[13px] text-stone-600">
+        {galleryIndex + 1} / {galleryTotalPages}
+      </span>
+    </button>
+
+    {/* 다음 페이지 */}
+    <div className="flex h-12 w-12 items-center justify-center">
+      {galleryIndex <
+        galleryTotalPages - 1 && (
+        <button
+          type="button"
+          onClick={() =>
+            setGalleryIndex((prev) =>
+              Math.min(
+                prev + 1,
+                galleryTotalPages - 1
+              )
+            )
+          }
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border border-stone-300 bg-white text-stone-600 shadow-sm transition active:scale-95"
+          aria-label="다음 갤러리"
+        >
+          <ChevronRight
+            className="h-5 w-5"
+            strokeWidth={2}
+          />
+        </button>
+      )}
+    </div>
+
+  </div>
+</Section>
+
+
+
+
+
+
+
+
 <Section className="text-center">
   <p className="mb-3 text-xs tracking-[0.28em] text-stone-500">
     ACCOUNT
@@ -1666,7 +1801,7 @@ const copyInvitationUrl = async () => {
         id: "groom",
         title: "신랑측 계좌번호",
         accounts: [
-          ["신랑 강준석", "국민은행", "750602-01-234482"],
+          ["신랑 강준석", "국민은행", "3333-14-2694953"],
           ["아버지 강형진", "농협은행", "821113-56-085108"],
           ["어머니 유숙희", "농협은행", "356-0695-5044-13"],
         ],
@@ -1675,7 +1810,7 @@ const copyInvitationUrl = async () => {
         id: "bride",
         title: "신부측 계좌번호",
         accounts: [
-          ["신부 윤선영", "국민은행", "539701-04-021122"],
+          ["신부 윤선영", "카카오뱅크", "3333-12-6875777"],
           ["아버지 윤태열", "하나은행", "279-910473-49707"],
           ["어머니 최희영", "SC제일은행", "661-20-071196"],
         ],
@@ -1733,30 +1868,30 @@ const copyInvitationUrl = async () => {
   </div>
 </Section>
 
-<section className="relative min-h-screen overflow-hidden bg-stone-900">
+<section className="relative h-[100svh] overflow-hidden bg-stone-900">
 
-{/* 엔딩 배경 GIF */}
-<div className="absolute inset-0 overflow-hidden bg-black">
-  <img
-  src={wedding.endingImage}
-  alt="엔딩 웨딩 이미지"
-  draggable={false}
-  className="h-full w-full object-cover object-bottom"
-/>
-</div>
+  {/* 엔딩 배경 GIF */}
+  <div className="absolute inset-0 overflow-hidden bg-black">
+    <img
+      src={wedding.endingImage}
+      alt="엔딩 웨딩 이미지"
+      draggable={false}
+      className="h-full w-full object-cover object-bottom"
+    />
+  </div>
 
   {/* 어두운 오버레이 */}
   <div className="absolute inset-0 bg-black/50" />
 
   {/* 엔딩 콘텐츠 */}
-  <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-10 pt-20 text-center text-white">
+  <div className="relative z-10 flex h-full flex-col items-center px-6 pt-16 text-center text-white">
 
     {/* 상단 문구 */}
     <div className="flex flex-col items-center">
       <p className="font-serif text-2xl leading-[1.5] drop-shadow-md">
         저희의 새로운 시작을
         <br />
-        함께 해주셔서 
+        함께 해주셔서
         <br />
         감사합니다
       </p>
@@ -1765,35 +1900,34 @@ const copyInvitationUrl = async () => {
 
       <div className="flex items-center justify-center gap-5 font-serif drop-shadow-md">
 
-  <div className="flex items-center gap-2">
-    <span className="text-[13px] font-normal text-white/75">
-      신랑
-    </span>
-    <span className="text-[19px] font-medium text-white">
-      {wedding.groom}
-    </span>
-  </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-normal text-white/75">
+            신랑
+          </span>
+          <span className="text-[19px] font-medium text-white">
+            {wedding.groom}
+          </span>
+        </div>
 
-  <span className="text-[15px] text-white/80">
-    ♥
-  </span>
+        <span className="text-[15px] text-white/80">
+          ♥
+        </span>
 
-  <div className="flex items-center gap-2">
-    <span className="text-[13px] font-normal text-white/75">
-      신부
-    </span>
-    <span className="text-[19px] font-medium text-white">
-      {wedding.bride}
-    </span>
-  </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-normal text-white/75">
+            신부
+          </span>
+          <span className="text-[19px] font-medium text-white">
+            {wedding.bride}
+          </span>
+        </div>
 
-</div>
+      </div>
     </div>
 
     {/* 하단 3개 메뉴 */}
-    <div className="grid w-full grid-cols-3 items-start">
+    <div className="mt-auto grid w-full grid-cols-3 items-start pb-[max(22px,env(safe-area-inset-bottom))]">
 
-      {/* 카카오톡 공유 */}
       <button
         type="button"
         onClick={shareInvitation}
@@ -1810,7 +1944,6 @@ const copyInvitationUrl = async () => {
         </span>
       </button>
 
-      {/* 청첩장 주소 복사 */}
       <button
         type="button"
         onClick={copyInvitationUrl}
@@ -1827,7 +1960,6 @@ const copyInvitationUrl = async () => {
         </span>
       </button>
 
-      {/* QR 코드 */}
       <button
         type="button"
         onClick={() => setShowQrModal(true)}
@@ -2112,7 +2244,7 @@ const copyInvitationUrl = async () => {
             <button
               type="button"
               onClick={() => setIsMapZoomEnabled(true)}
-              className="rounded-full bg-white/90 px-6 py-3 text-sm font-semibold text-stone-700 shadow-md backdrop-blur transition active:scale-[0.98]"
+              className="rounded-full bg-stone-700 px-6 py-3 text-sm font-semibold text-white/90 shadow-md backdrop-blur transition active:scale-[0.98]"
             >
               확대해서 보기
             </button>
