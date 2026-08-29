@@ -315,8 +315,34 @@ const fadeUp: Variants = {
 const downloadMapImage = async () => {
   try {
     const response = await fetch("/images/map-3f.png");
+
+    if (!response.ok) {
+      throw new Error("약도 이미지를 불러오지 못했습니다.");
+    }
+
     const blob = await response.blob();
 
+    const file = new File(
+      [blob],
+      "웨딩스퀘어-강변-3층-약도.png",
+      { type: "image/png" }
+    );
+
+    // 모바일: 공유창을 이용해 사진 저장 가능
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+      await navigator.share({
+        files: [file],
+        title: "웨딩스퀘어 강변 3층 약도",
+      });
+
+      return;
+    }
+
+    // PC 및 Web Share 미지원 브라우저
     const blobUrl = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
@@ -327,9 +353,12 @@ const downloadMapImage = async () => {
     link.click();
     document.body.removeChild(link);
 
-    URL.revokeObjectURL(blobUrl);
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+    }, 1000);
   } catch (error) {
     console.error("약도 저장 실패:", error);
+    alert("약도 저장에 실패했습니다.");
   }
 };
 
