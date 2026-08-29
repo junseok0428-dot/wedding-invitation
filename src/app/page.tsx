@@ -312,55 +312,6 @@ const fadeUp: Variants = {
   },
 };
 
-const downloadMapImage = async () => {
-  try {
-    const response = await fetch("/images/map-3f.png");
-
-    if (!response.ok) {
-      throw new Error("약도 이미지를 불러오지 못했습니다.");
-    }
-
-    const blob = await response.blob();
-
-    const file = new File(
-      [blob],
-      "웨딩스퀘어-강변-3층-약도.png",
-      { type: "image/png" }
-    );
-
-    // 모바일: 공유창을 이용해 사진 저장 가능
-    if (
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare({ files: [file] })
-    ) {
-      await navigator.share({
-        files: [file],
-        title: "웨딩스퀘어 강변 3층 약도",
-      });
-
-      return;
-    }
-
-    // PC 및 Web Share 미지원 브라우저
-    const blobUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = blobUrl;
-    link.download = "웨딩스퀘어-강변-3층-약도.png";
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => {
-      URL.revokeObjectURL(blobUrl);
-    }, 1000);
-  } catch (error) {
-    console.error("약도 저장 실패:", error);
-    alert("약도 저장에 실패했습니다.");
-  }
-};
 
 const stagger: Variants = {
   hidden: {},
@@ -1532,10 +1483,7 @@ const copyInvitationUrl = async () => {
   })}
 </div>
 
-<div className="mt-6 grid grid-cols-2 gap-3 text-center">
-              
-              
-            </div>
+
           </div>
 
           <motion.div
@@ -1691,7 +1639,7 @@ const copyInvitationUrl = async () => {
     },
     {
       title: "버스",
-      text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11, 15, 93, 112-1, 2000-1, 3212",
+      text: "광진03, 광진05, 강동01, 1, 1-1, 9, 11,\n 15, 93, 112-1, 2000-1, 3212",
     },
     {
       title: "자가용",
@@ -2302,16 +2250,7 @@ const copyInvitationUrl = async () => {
         )}
       </div>
 
-      {/* 하단 저장 버튼 */}
-      <div className="flex shrink-0 justify-center pt-3">
-        <button
-          type="button"
-          onClick={downloadMapImage}
-          className="rounded-xl border border-white/20 bg-white/10 px-4 py-1 text-[13px] font-medium text-white shadow-sm backdrop-blur transition active:scale-[0.98]"
-        >
-          약도 저장하기
-        </button>
-      </div>
+
 
     </div>
   </div>
