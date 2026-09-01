@@ -1782,7 +1782,7 @@ const copyInvitationUrl = async () => {
         id: "groom",
         title: "신랑측 계좌번호",
         accounts: [
-          ["신랑 강준석", "국민은행", "3333-14-2694953"],
+          ["신랑 강준석", "카카오뱅크", "3333-14-2694953"],
           ["아버지 강형진", "농협은행", "821113-56-085108"],
           ["어머니 유숙희", "농협은행", "356-0695-5044-13"],
         ],
@@ -2185,25 +2185,36 @@ const copyInvitationUrl = async () => {
 )}
 
 {selectedMapImage && (
-  <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-4">
-
-    {/* 닫기 */}
+  <div
+    className="fixed inset-0 z-[1000] overflow-hidden bg-black/90"
+    style={{
+      touchAction: "none",
+      overscrollBehavior: "none",
+    }}
+  >
+    {/* 닫기 - 항상 화면 기준으로 고정 */}
     <button
       type="button"
       onClick={() => {
         setSelectedMapImage(null);
         setIsMapZoomEnabled(false);
       }}
-      className="absolute right-5 top-5 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl text-white backdrop-blur"
+      className="fixed right-5 top-5 z-[1100] flex h-11 w-11 items-center justify-center rounded-full bg-white/20 text-2xl text-white shadow-md backdrop-blur"
       aria-label="닫기"
     >
       ×
     </button>
 
-    <div className="relative flex h-[85vh] w-full max-w-[430px] flex-col">
+    {/* 약도 표시 영역 */}
+    <div
+      className="absolute inset-0 flex items-center justify-center p-4"
+      style={{
+        touchAction: "none",
+        overscrollBehavior: "none",
+      }}
+    >
+      <div className="relative h-[85svh] w-full max-w-[430px] overflow-hidden">
 
-      {/* 약도 영역 */}
-      <div className="relative min-h-0 flex-1 overflow-hidden">
         <TransformWrapper
           initialScale={1}
           minScale={1}
@@ -2226,18 +2237,31 @@ const copyInvitationUrl = async () => {
             <img
               src={selectedMapImage}
               alt="3층 약도"
-              className="h-full w-full object-contain"
               draggable={false}
+              onDragStart={(event) => event.preventDefault()}
+              style={{
+                touchAction: "none",
+                WebkitUserSelect: "none",
+                userSelect: "none",
+                WebkitTouchCallout: "none",
+              }}
+              className="h-full w-full select-none object-contain"
             />
           </TransformComponent>
         </TransformWrapper>
 
-        {/* 확대 활성화 버튼 */}
+        {/* 확대 활성화 전 */}
         {!isMapZoomEnabled && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center">
+          <div
+            className="absolute inset-0 z-20 flex items-center justify-center"
+            style={{ touchAction: "none" }}
+          >
             <button
               type="button"
-              onClick={() => setIsMapZoomEnabled(true)}
+              onClick={(event) => {
+                event.stopPropagation();
+                setIsMapZoomEnabled(true);
+              }}
               className="rounded-full bg-stone-700 px-6 py-3 text-sm font-semibold text-white/90 shadow-md backdrop-blur transition active:scale-[0.98]"
             >
               확대해서 보기
@@ -2245,16 +2269,14 @@ const copyInvitationUrl = async () => {
           </div>
         )}
 
-        {/* 확대 활성화 후 안내 */}
+        {/* 확대 활성화 후 */}
         {isMapZoomEnabled && (
-          <p className="pointer-events-none absolute bottom-0 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/40 px-4 py-2 text-[11px] text-white/80 backdrop-blur">
+          <p className="pointer-events-none absolute bottom-3 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/50 px-4 py-2 text-[11px] text-white/90 backdrop-blur">
             약도를 확대해서 볼 수 있어요
           </p>
         )}
+
       </div>
-
-
-
     </div>
   </div>
 )}
